@@ -158,15 +158,33 @@ for i_EWH in range(N_EWH):
             serive_duration += 1
     print(f"Duration of flexibility service: {serive_duration} minutes")
 
+    # Count number of minutes from temperature reaches T_min until it reaches T_max
+    serive_duration_base = 0
+    for t in range(0, time_steps):
+        T_temp = T_list_base[t]
+        if T_temp <= T_min:
+            for t2 in range(t, time_steps):
+                T_temp = T_list_base[t2]
+                serive_duration_base += 1
+                if T_temp >= T_max:
+                    break
+            break
+    print(f"Duration of flexibility service based on temperature: {serive_duration_base} minutes")
+    
+
     E_c = P_cap * serive_duration / 60
     print(f"Energy capacity of flexibility resource: {E_c} kWh")
+
+    E_c_base = P_cap * serive_duration_base / 60
+    print(f"Energy capacity of flexibility resource based on temperature: {E_c_base} kWh")
+
 
 
 #%% Plot results for from Electric Water Heater model
 
 if N_EWH == 1:
     # If running model for a single Electric Water Heater
-    fig,ax1 = plt.subplots(figsize=(20,12))
+    fig,ax1 = plt.subplots(figsize=(10,6))
     if (t_act != None) & (S_act != None):
         h_T_base, = plt.plot(T_list_base, 'r--')
     h_T, = plt.plot(T_list, 'r')
