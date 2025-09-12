@@ -101,11 +101,11 @@ P = 0
 
 # Time of flexibility activation (minutes from start time); 
 # set to None to disable flexibility activation
-t_act = None
+t_act = 250
 
 # EWH activation signal that sets the status of the EWHs after activating flexibility; 
 # 1 turns all EWHs on; 0 turns all EWHs off; set to None to disable flexibility activation
-S_act = None
+S_act = 1
 
 # Number of time steps (minutes)
 time_steps = 24*60
@@ -149,11 +149,24 @@ for i_EWH in range(N_EWH):
     P_list_all += np.array(P_list)
     P_list_base_all += np.array(P_list_base)
 
+    P_cap = P_list_all[t_act+1] - P_list_base_all[t_act+1]
+    print(f"Capacity of flexibility resource at time of activation: {P_cap} kW")
+
+    serive_duration = 0
+    for t in range(t_act+1, time_steps):
+        if P_list_all[t] > P_list_base_all[t]:
+            serive_duration += 1
+    print(f"Duration of flexibility service: {serive_duration} minutes")
+
+    E_c = P_cap * serive_duration / 60
+    print(f"Energy capacity of flexibility resource: {E_c} kWh")
+
+
 #%% Plot results for from Electric Water Heater model
 
 if N_EWH == 1:
     # If running model for a single Electric Water Heater
-    fig,ax1 = plt.subplots()
+    fig,ax1 = plt.subplots(figsize=(20,12))
     if (t_act != None) & (S_act != None):
         h_T_base, = plt.plot(T_list_base, 'r--')
     h_T, = plt.plot(T_list, 'r')
@@ -173,7 +186,10 @@ if N_EWH == 1:
     ax2.plot(P_list, color=color2)    
     ax2.tick_params(axis='y', labelcolor=color2)
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    plt.show()
+    plt.savefig('EWH_flexibility_example.png', dpi=300)
+    # plt.show()
+    
+    
 
 elif N_EWH > 1:
     # If running model for multiple Electric Water Heaters
@@ -188,3 +204,4 @@ elif N_EWH > 1:
     if (t_act != None) & (S_act != None):
         ax1.legend([h_P_base,h_P], ['without flex.','with flex.'], loc = 'upper left')
     plt.show()
+    
