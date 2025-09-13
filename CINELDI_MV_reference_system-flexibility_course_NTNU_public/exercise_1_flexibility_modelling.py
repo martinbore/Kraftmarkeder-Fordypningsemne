@@ -152,14 +152,30 @@ for i_EWH in range(N_EWH):
     P_cap = P_list_all[t_act+1] - P_list_base_all[t_act+1]
     print(f"Capacity of flexibility resource at time of activation: {P_cap} kW")
 
-    serive_duration = 0
+    service_duration = 0
     for t in range(t_act+1, time_steps):
         if P_list_all[t] > P_list_base_all[t]:
-            serive_duration += 1
-    print(f"Duration of flexibility service: {serive_duration} minutes")
+            service_duration += 1
+    print(f"Duration of flexibility service: {service_duration} minutes")
 
-    E_c = P_cap * serive_duration / 60
+    E_c = P_cap * service_duration / 60
     print(f"Energy capacity of flexibility resource: {E_c} kWh")
+
+
+    # Exercise 3:
+    # Plot and explain the amount of flexibility activation
+
+    x_series = np.arange(0, time_steps)
+    y_series_base = P_list_base_all
+    y_series_flex =  P_list_all
+
+    plt.plot(x_series, y_series_base, label='Baseline')
+    plt.plot(x_series, y_series_flex, label='Flexibility')
+    plt.xlabel('Time (minutes)')
+    plt.ylabel('Aggregated EWH Load (kW)')      
+    plt.title('Aggregated Electric Water Heater Load Profile')
+    plt.legend()
+    plt.show()
 
 
 #%% Plot results for from Electric Water Heater model
