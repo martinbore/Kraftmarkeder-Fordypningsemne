@@ -5,10 +5,10 @@ import os
 
 # ====== Paths ======
 # Absolutt sti til mappen der skript og filer ligger
-# base_dir = Path(r"C:\TET4565 Kraftmarkeder\Kraftmarkeder - markedsmodul") Sigurd
+
 base_dir = Path(r"\\sambaad.stud.ntnu.no\martbore\Documents\Kraftmarkeder2\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul") #Martin
 
-base_dir = Path(r"C:\TET4565 Kraftmarkeder\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul")
+base_dir = Path(r"C:\TET4565 Kraftmarkeder\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul") # Sigurd
 balancing_file = base_dir / "balancing_prices_NO_2_all_years.csv"
 spot_file = base_dir / "spot_prices_NO2_2015_2024.csv"
 
