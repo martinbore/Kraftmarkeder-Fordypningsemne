@@ -101,7 +101,7 @@ P = 0
 
 # Time of flexibility activation (minutes from start time); 
 # set to None to disable flexibility activation
-t_act = 450
+t_act = 785
 # 1050
 # Vi må gjøre en vurdering på når vi skal sette t_act. Gir kanskje mer mening å sette den før modellen "uten fleksibilitet" starter?
 
@@ -114,8 +114,8 @@ S_act = 0
 time_steps = 24*60
 
 # Number of EWHs / hot water tanks to model
-# N_EWH = 1
-N_EWH = 100
+N_EWH = 1
+# N_EWH = 100
 
 if N_EWH == 1:
     # If modelling a single EWH, initialize temperature as specified above
@@ -173,27 +173,18 @@ for i_EWH in range(N_EWH):
     E_c_base = P_cap * service_duration_base / 60
     print(f"Energy capacity of flexibility resource based on temperature: {E_c_base} kWh")
 
+# For base case find when the EWHs are heating
+t_heat_base = []
+for t in range(0, time_steps):
+    if P_list_base_all[t] > 0:
+        t_heat_base.append(t)
+print(t_heat_base[0])
 
 
-    # Exercise 3:
-    # Plot and explain the amount of flexibility activation
 
-    x_series = np.arange(0, time_steps)
-    y_series_base = P_list_base_all
-    y_series_flex =  P_list_all
-
-    plt.plot(x_series, y_series_base, label='Baseline')
-    plt.plot(x_series, y_series_flex, label='Flexibility')
-    plt.xlabel('Time (minutes)')
-    plt.ylabel('Aggregated EWH Load (kW)')      
-    plt.title('Aggregated Electric Water Heater Load Profile')
-    plt.legend()
-    # plt.show()
-
-
-    # Exercise 4:   
-    # Plot and explain the amount of flexibility activation
-    x_series = np.arange(0, time_steps)
+    # # Exercise 4:   
+    # # Plot and explain the amount of flexibility activation
+    # x_series = np.arange(0, time_steps)
     
 
 #%% Plot results for from Electric Water Heater model
@@ -238,6 +229,21 @@ elif N_EWH > 1:
     if (t_act != None) & (S_act != None):
         ax1.legend([h_P_base,h_P], ['without flex.','with flex.'], loc = 'upper left')
     # plt.show()
+
+# Exercise 3:
+# Plot and explain the amount of flexibility activation
+
+x_series = np.arange(0, time_steps)
+y_series_base = P_list_base_all
+y_series_flex =  P_list_all
+
+plt.plot(x_series, y_series_base, label='Baseline')
+plt.plot(x_series, y_series_flex, label='Flexibility')
+plt.xlabel('Time (minutes)')
+plt.ylabel('Aggregated EWH Load (kW)')      
+plt.title('Aggregated Electric Water Heater Load Profile')
+plt.legend()
+plt.show()
     
 
 # Exercise 5:   
