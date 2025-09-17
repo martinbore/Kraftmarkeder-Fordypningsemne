@@ -152,14 +152,16 @@ for i_EWH in range(N_EWH):
     # Aggregate load time series
     P_list_all += np.array(P_list)
     P_list_base_all += np.array(P_list_base)
-
+    
+# TASK 2 - Quantity of flexibility
+#____________________________________________________________________________________________
     # Getting the capacity of the flexible resource:
-    P_cap = P_list_all[t_act+1] - P_list_base_all[t_act+1]
+    P_cap = abs(P_list_all[t_act+1] - P_list_base_all[t_act+1])
     print(f"Capacity of flexibility resource at time of activation: {P_cap} kW")
 
     service_duration = 0
-    for t in range(t_act+1, time_steps):
-        if P_list_all[t] > P_list_base_all[t]:
+    for t in range(0, time_steps):
+        if P_list_all[t] >= P_list_base_all[t] if P_list_base_all[t] != 0 else P_list_all[t] > 0:
             service_duration += 1
     print(f"Duration of flexibility service: {service_duration} minutes")
 
@@ -179,8 +181,35 @@ for t in range(0, time_steps):
     if P_list_base_all[t] > 0:
         t_heat_base.append(t)
 print(t_heat_base[0])
+print(t_heat_base[-1])
+print(len(t_heat_base))
 
+# For flexibility case find when the EWHs are heating
+t_heat_flex = []
+for t in range(0, time_steps):
+    if P_list_all[t] > 0:
+        t_heat_flex.append(t)
+print(t_heat_flex[0])
+print(t_heat_flex[-1])  
+print(len(t_heat_flex))
+#____________________________________________________________________________________________
 
+# TASK 3 - Plotting and explaining the amount of flexibility activation
+#____________________________________________________________________________________________
+
+x_series = np.arange(0, time_steps)
+y_series_base = P_list_base_all
+y_series_flex =  P_list_all
+
+x_series = np.arange(0, time_steps)
+plt.plot(x_series, y_series_base - y_series_flex, label='Flexibility activation (kW)', color = 'grey')
+plt.xlabel('Time (minutes)')
+plt.ylabel('Electric Water Heater Load Difference (kW)')      
+plt.title('Flexibility profile')
+plt.legend()
+plt.savefig('EWH_flexibility_activation_example.png', dpi=300)
+plt.show()
+plt.close()
 
     # # Exercise 4:   
     # # Plot and explain the amount of flexibility activation
@@ -233,9 +262,7 @@ elif N_EWH > 1:
 # Exercise 3:
 # Plot and explain the amount of flexibility activation
 
-x_series = np.arange(0, time_steps)
-y_series_base = P_list_base_all
-y_series_flex =  P_list_all
+
 
 plt.plot(x_series, y_series_base, label='Baseline')
 plt.plot(x_series, y_series_flex, label='Flexibility')
@@ -247,12 +274,5 @@ plt.show()
     
 
 # Exercise 5:   
-# Load shifting to an earlier time period
-x_series = np.arange(0, time_steps)
-plt.plot(x_series, y_series_base - y_series_flex, label='Flexibility activation (kW)', color = 'grey')
-plt.xlabel('Time (minutes)')
-plt.ylabel('Electric Water Heater Load Difference (kW)')      
-plt.title('Flexibility profile')
-plt.legend()
-plt.show()
+
     
