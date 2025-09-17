@@ -186,7 +186,7 @@ print(len(t_heat_base))
 
 # For flexibility case find when the EWHs are heating
 t_heat_flex = []
-for t in range(0, time_steps):
+for t in range(850, time_steps):
     if P_list_all[t] > 0:
         t_heat_flex.append(t)
 print(t_heat_flex[0])
