@@ -107,13 +107,15 @@ t_act = 450
 
 # EWH activation signal that sets the status of the EWHs after activating flexibility; 
 # 1 turns all EWHs on; 0 turns all EWHs off; set to None to disable flexibility activation
-S_act = 1
+# S_act = 1
+S_act = 0
 
 # Number of time steps (minutes)
 time_steps = 24*60
 
 # Number of EWHs / hot water tanks to model
-N_EWH = 1
+# N_EWH = 1
+N_EWH = 100
 
 if N_EWH == 1:
     # If modelling a single EWH, initialize temperature as specified above
@@ -151,6 +153,7 @@ for i_EWH in range(N_EWH):
     P_list_all += np.array(P_list)
     P_list_base_all += np.array(P_list_base)
 
+    # Getting the capacity of the flexible resource:
     P_cap = P_list_all[t_act+1] - P_list_base_all[t_act+1]
     print(f"Capacity of flexibility resource at time of activation: {P_cap} kW")
 
@@ -160,11 +163,15 @@ for i_EWH in range(N_EWH):
             service_duration += 1
     print(f"Duration of flexibility service: {service_duration} minutes")
 
+    service_duration_base = 0
+    for t in range(0, time_steps):
+        if P_list_base_all[t] > 0:
+            service_duration_base += 1
     E_c = P_cap * service_duration / 60
     print(f"Energy capacity of flexibility resource: {E_c} kWh")
 
-    #E_c_base = P_cap * service_duration_base / 60
-    #print(f"Energy capacity of flexibility resource based on temperature: {E_c_base} kWh")
+    E_c_base = P_cap * service_duration_base / 60
+    print(f"Energy capacity of flexibility resource based on temperature: {E_c_base} kWh")
 
 
 
@@ -181,7 +188,7 @@ for i_EWH in range(N_EWH):
     plt.ylabel('Aggregated EWH Load (kW)')      
     plt.title('Aggregated Electric Water Heater Load Profile')
     plt.legend()
-    plt.show()
+    # plt.show()
 
 
     # Exercise 4:   
@@ -230,7 +237,7 @@ elif N_EWH > 1:
     h_P, = ax1.plot(P_list_all, color=color1)
     if (t_act != None) & (S_act != None):
         ax1.legend([h_P_base,h_P], ['without flex.','with flex.'], loc = 'upper left')
-    plt.show()
+    # plt.show()
     
 
 # Exercise 5:   
