@@ -101,8 +101,10 @@ P = 0
 
 # Time of flexibility activation (minutes from start time); 
 # set to None to disable flexibility activation
-t_act = 450
-# 1050
+#t_act = 450
+t_act = 610
+# t_act = 300
+# t_act = 1050
 # Vi må gjøre en vurdering på når vi skal sette t_act. Gir kanskje mer mening å sette den før modellen "uten fleksibilitet" starter?
 
 # EWH activation signal that sets the status of the EWHs after activating flexibility; 
@@ -163,16 +165,23 @@ for i_EWH in range(N_EWH):
             service_duration += 1
     print(f"Duration of flexibility service: {service_duration} minutes")
 
-    service_duration_base = 0
-    for t in range(0, time_steps):
-        if P_list_base_all[t] > 0:
-            service_duration_base += 1
-    E_c = P_cap * service_duration / 60
-    print(f"Energy capacity of flexibility resource: {E_c} kWh")
+    # Energy capacity of the flexible resource
+    # E_c_flex = P_cap * service_duration / 60
+    # print(f"Energy capacity of flexibility resource: {E_c_flex} kWh")
+    
+    # service_duration_base = 0
+    # for t in range(0, time_steps):
+    #    if P_list_base_all[t] > 0:
+    #        service_duration_base += 1
+    #E_c_base = P_cap * service_duration_base / 60
+    
 
-    E_c_base = P_cap * service_duration_base / 60
-    print(f"Energy capacity of flexibility resource based on temperature: {E_c_base} kWh")
+    #E_c_base = P_cap * service_duration_base / 60
+    # print(f"Energy capacity of flexibility resource based on temperature: {E_c_base} kWh")
 
+    #P_diff = P_list_all - P_list_base_all
+    #Rebound_effect = P_diff * time_steps/60
+    #print(f"Rebound effect: {Rebound_effect} kWh")
 
 
     # Exercise 3:
@@ -249,4 +258,11 @@ plt.ylabel('Electric Water Heater Load Difference (kW)')
 plt.title('Flexibility profile')
 plt.legend()
 plt.show()
+
+
+# Exercise 6:
+P_base = P_list_base_all[t_act] # The power consumption at t_act without flexibility
+P_flex = P_list[t_act] # The power consumption at t_act with flexibility
+power_capacity = P_base - P_flex # The difference is the total power capacity of the flexible resources
+print(f'Power Capacity at t_act = {t_act}: {power_capacity} kW')
     
