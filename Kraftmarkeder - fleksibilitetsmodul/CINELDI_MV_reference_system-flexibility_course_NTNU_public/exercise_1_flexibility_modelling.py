@@ -102,9 +102,9 @@ P = 0
 # Time of flexibility activation (minutes from start time); 
 # set to None to disable flexibility activation
 # t_act = None
-t_act = 240 # Task 6
+# t_act = 240 # Task 6
 # t_act = 785 # Task 1 and 2
-# t_act = 675 # Task 6
+t_act = 675 # Task 6
 # t_act = 900 # Task 6
 # 1050
 # Vi må gjøre en vurdering på når vi skal sette t_act. Gir kanskje mer mening å sette den før modellen "uten fleksibilitet" starter?
