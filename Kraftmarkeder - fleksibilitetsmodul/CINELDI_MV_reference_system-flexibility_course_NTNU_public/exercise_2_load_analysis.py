@@ -77,4 +77,46 @@ load_time_series_mapped = profiles_mapped.mul(net.load['p_mw'])
 # Exercise 1 - Plot the voltage profile in the grid and find how low the voltage drops:
 pp.runpp(net,init='results',algorithm='bfsw')
 pp_plotting.pf_res_plotly(net)
-print('Minimum voltage in the system assuming a peak load model: ' + str(net.res_bus['vm_pu'].min()) + ' p.u.')
+print('Minimum voltage in the system: ' + str(net.res_bus['vm_pu'].min()) + ' p.u.')
+
+# Exercise 2 - Find how much the voltages decrease as the load demand in the area increases
+power_df = pd.DataFrame()
+Demand_bus_90 = net.load[net.load['bus'] == 90]['p_mw'].values
+Demand_bus_91 = net.load[net.load['bus'] == 91]['p_mw'].values
+Demand_bus_92 = net.load[net.load['bus'] == 92]['p_mw'].values
+Demand_bus_96 = net.load[net.load['bus'] == 96]['p_mw'].values
+
+
+Scaling_factors = np.arange(1,2.25,0.25) 
+plotting_dict = {}
+for factor in Scaling_factors:
+    net.load.loc[net.load['bus'] == 90, 'p_mw'] = Demand_bus_90 * factor
+    net.load.loc[net.load['bus'] == 91, 'p_mw'] = Demand_bus_91 * factor
+    net.load.loc[net.load['bus'] == 92, 'p_mw'] = Demand_bus_92 * factor
+    net.load.loc[net.load['bus'] == 96, 'p_mw'] = Demand_bus_96 * factor
+    pp.runpp(net,init='results',algorithm='bfsw')
+    min_voltage = net.res_bus['vm_pu'].min()
+    bus_min_voltage = net.res_bus['vm_pu'].idxmin()
+    lowest = [bus_min_voltage]
+    load_demand_low = net.load.loc[net.load['bus'].isin(lowest), 'p_mw'].sum()
+    # Hent last kun for bussene du endrer
+    aggregated_load_demand = net.load.loc[net.load['bus'].isin(bus_i_subset), 'p_mw'].sum()
+    plotting_dict[factor] = (bus_min_voltage, min_voltage, load_demand_low, aggregated_load_demand)
+
+min_voltages = []
+load_demands = []
+for key in plotting_dict:
+    min_voltages.append(plotting_dict[key][1])
+    load_demands.append(plotting_dict[key][3])  
+
+plt.plot(load_demands, min_voltages, marker='o', linestyle='-')
+
+plt.xlabel("Aggregated Load demand [MW]")
+plt.ylabel("Minimum voltage [p.u.]")
+plt.title("Load vs. Minimum Voltage")
+plt.show()
+
+
+    
+
+
