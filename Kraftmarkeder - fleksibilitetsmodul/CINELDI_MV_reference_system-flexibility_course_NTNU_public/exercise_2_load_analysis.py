@@ -72,3 +72,9 @@ new_load_time_series = new_load_profiles[i_time_series_new_load]*P_max_new
 # (1-indexed) and the row index is the hour of the year (0-indexed)
 load_time_series_mapped = profiles_mapped.mul(net.load['p_mw'])
 # %%
+
+
+# Exercise 1 - Plot the voltage profile in the grid and find how low the voltage drops:
+pp.runpp(net,init='results',algorithm='bfsw')
+pp_plotting.pf_res_plotly(net)
+print('Minimum voltage in the system assuming a peak load model: ' + str(net.res_bus['vm_pu'].min()) + ' p.u.')
