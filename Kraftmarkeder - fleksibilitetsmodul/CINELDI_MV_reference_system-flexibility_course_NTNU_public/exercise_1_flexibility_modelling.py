@@ -101,10 +101,8 @@ P = 0
 
 # Time of flexibility activation (minutes from start time); 
 # set to None to disable flexibility activation
-#t_act = 450
-t_act = 610
-# t_act = 300
-# t_act = 1050
+t_act = 450
+# 1050
 # Vi må gjøre en vurdering på når vi skal sette t_act. Gir kanskje mer mening å sette den før modellen "uten fleksibilitet" starter?
 
 # EWH activation signal that sets the status of the EWHs after activating flexibility; 
@@ -116,8 +114,8 @@ S_act = 0
 time_steps = 24*60
 
 # Number of EWHs / hot water tanks to model
-# N_EWH = 1
-N_EWH = 100
+N_EWH = 1
+# N_EWH = 100
 
 if N_EWH == 1:
     # If modelling a single EWH, initialize temperature as specified above
@@ -154,14 +152,16 @@ for i_EWH in range(N_EWH):
     # Aggregate load time series
     P_list_all += np.array(P_list)
     P_list_base_all += np.array(P_list_base)
-
+    
+# TASK 2 - Quantity of flexibility
+#____________________________________________________________________________________________
     # Getting the capacity of the flexible resource:
-    P_cap = P_list_all[t_act+1] - P_list_base_all[t_act+1]
+    P_cap = abs(P_list_all[t_act+1] - P_list_base_all[t_act+1])
     print(f"Capacity of flexibility resource at time of activation: {P_cap} kW")
 
     service_duration = 0
-    for t in range(t_act+1, time_steps):
-        if P_list_all[t] > P_list_base_all[t]:
+    for t in range(0, time_steps):
+        if P_list_all[t] >= P_list_base_all[t] if P_list_base_all[t] != 0 else P_list_all[t] > 0:
             service_duration += 1
     print(f"Duration of flexibility service: {service_duration} minutes")
 
@@ -179,30 +179,28 @@ for i_EWH in range(N_EWH):
     #E_c_base = P_cap * service_duration_base / 60
     # print(f"Energy capacity of flexibility resource based on temperature: {E_c_base} kWh")
 
-    #P_diff = P_list_all - P_list_base_all
-    #Rebound_effect = P_diff * time_steps/60
-    #print(f"Rebound effect: {Rebound_effect} kWh")
 
 
     # Exercise 3:
     # Plot and explain the amount of flexibility activation
 
-    x_series = np.arange(0, time_steps)
-    y_series_base = P_list_base_all
-    y_series_flex =  P_list_all
+x_series = np.arange(0, time_steps)
+y_series_base = P_list_base_all
+y_series_flex =  P_list_all
 
-    plt.plot(x_series, y_series_base, label='Baseline')
-    plt.plot(x_series, y_series_flex, label='Flexibility')
-    plt.xlabel('Time (minutes)')
-    plt.ylabel('Aggregated EWH Load (kW)')      
-    plt.title('Aggregated Electric Water Heater Load Profile')
-    plt.legend()
-    # plt.show()
+x_series = np.arange(0, time_steps)
+plt.plot(x_series, y_series_base - y_series_flex, label='Flexibility activation (kW)', color = 'grey')
+plt.xlabel('Time (minutes)')
+plt.ylabel('Electric Water Heater Load Difference (kW)')      
+plt.title('Flexibility profile')
+plt.legend()
+plt.savefig('EWH_flexibility_activation_example.png', dpi=300)
+plt.show()
+plt.close()
 
-
-    # Exercise 4:   
-    # Plot and explain the amount of flexibility activation
-    x_series = np.arange(0, time_steps)
+    # # Exercise 4:   
+    # # Plot and explain the amount of flexibility activation
+    # x_series = np.arange(0, time_steps)
     
 
 #%% Plot results for from Electric Water Heater model
@@ -247,15 +245,17 @@ elif N_EWH > 1:
     if (t_act != None) & (S_act != None):
         ax1.legend([h_P_base,h_P], ['without flex.','with flex.'], loc = 'upper left')
     # plt.show()
-    
 
-# Exercise 5:   
-# Load shifting to an earlier time period
-x_series = np.arange(0, time_steps)
-plt.plot(x_series, y_series_base - y_series_flex, label='Flexibility activation (kW)', color = 'grey')
+# Exercise 3:
+# Plot and explain the amount of flexibility activation
+
+
+
+plt.plot(x_series, y_series_base, label='Baseline')
+plt.plot(x_series, y_series_flex, label='Flexibility')
 plt.xlabel('Time (minutes)')
-plt.ylabel('Electric Water Heater Load Difference (kW)')      
-plt.title('Flexibility profile')
+plt.ylabel('Aggregated EWH Load (kW)')      
+plt.title('Aggregated Electric Water Heater Load Profile')
 plt.legend()
 plt.show()
 
@@ -265,4 +265,8 @@ P_base = P_list_base_all[t_act] # The power consumption at t_act without flexibi
 P_flex = P_list[t_act] # The power consumption at t_act with flexibility
 power_capacity = P_base - P_flex # The difference is the total power capacity of the flexible resources
 print(f'Power Capacity at t_act = {t_act}: {power_capacity} kW')
+    
+
+# Exercise 5:   
+
     
