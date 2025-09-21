@@ -169,4 +169,15 @@ plt.legend()
 plt.show()
 
 # Exercise 6 - Calculate the utilization time and the coincidence factor for the loads in the grid area.
+tot_energy = aggregated_load_time_series.sum(axis=1) # MWh
+utilization_time = tot_energy.sum() / max_aggregated_load # hours
+coincidence_factor = max_aggregated_load / (aggregated_load_time_series.max().sum()) # MW / MW
+print('Utilization time: ' + str(utilization_time) + ' hours')
+print('Coincidence factor: ' + str(coincidence_factor)) 
+
+
+# Exercise 7 Capacity margin of the area with respect to the power flow limit 0.637 MW
+capacity_margin = P_lim - max_aggregated_load
+print('Capacity margin with respect to the power flow limit of ' + str(P_lim) + ' MW: ' + str(capacity_margin) + ' MW')
+
 
