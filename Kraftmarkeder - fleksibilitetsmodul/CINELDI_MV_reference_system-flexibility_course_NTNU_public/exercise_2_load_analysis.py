@@ -117,6 +117,56 @@ plt.title("Load vs. Minimum Voltage")
 plt.show()
 
 
-    
+# Exercise 3 - Plot the aggregated load demand time series for the grid area
+aggregated_load_time_series = load_time_series_mapped[bus_i_subset]
 
+# Plot the load demand time series for the grid area:
+plt.figure(figsize=(10, 6))
+for bus in bus_i_subset:
+    plt.plot(
+        aggregated_load_time_series.index,
+        aggregated_load_time_series[bus],
+        label=f'Bus {bus}'
+    )
+
+plt.xlabel("Time [h]")
+plt.ylabel("Load Demand [MW]")
+plt.title("Load Demand Time Series")
+plt.legend()
+plt.show()
+
+
+# Plot the aggregated load demand time series for the grid area:
+# Aggregated load demand plot:
+plt.figure(figsize=(10, 6))
+plt.plot(
+    aggregated_load_time_series.index,
+    aggregated_load_time_series.sum(axis=1),
+    label='Aggregated Load Demand',
+    color='black'
+)   
+
+plt.xlabel("Time [h]")
+plt.ylabel("Aggregated Load Demand [MW]")
+plt.title("Aggregated Load Demand Time Series")
+plt.legend()
+plt.show()
+
+
+# Exercise 4 - Find and explain the maximum of the aggregated load time series
+max_aggregated_load = aggregated_load_time_series.sum(axis=1).max()
+print('Maximum aggregated load demand in the area: ' + str(max_aggregated_load) + ' MW')
+
+
+# Exercise 5 - Plotting the duration curve for the aggregated load demand in the area:
+sorted_load = np.sort(aggregated_load_time_series.sum(axis=1))[::-1]
+plt.figure(figsize=(10, 6))
+plt.plot(sorted_load, label='Duration Curve', color='blue')
+plt.xlabel("Hours")
+plt.ylabel("Aggregated Load Demand [MW]")
+plt.title("Duration Curve of Aggregated Load Demand")
+plt.legend()
+plt.show()
+
+# Exercise 6 - Calculate the utilization time and the coincidence factor for the loads in the grid area.
 
