@@ -323,8 +323,18 @@ capacity_margin = P_lim - max_aggregated_load
 print('Capacity margin with respect to the power flow limit of ' + str(P_lim) + ' MW: ' + str(capacity_margin) + ' MW')
 
 # Exercise 8 - Plot the aggregated load demand time series for the grid area including the new load
-aggregated_load_time_series_with_new = aggregated_load_time_series.copy()
-aggregated_load_time_series_with_new['New Load'] = new_load_time_series
+
+# Create aggregated load time series including the new load
+aggregated_load_existing = aggregated_load_time_series.sum(axis=1)
+aggregated_load_with_new = aggregated_load_existing + new_load_time_series
+
+# Create DataFrame for plotting
+aggregated_load_time_series_with_new = pd.DataFrame({
+    'Existing Load': aggregated_load_existing,
+    'New Load': new_load_time_series,
+    'Total Load': aggregated_load_with_new
+})
+
 plt.figure(figsize=(10, 6))
 for column in aggregated_load_time_series_with_new.columns:
     plt.plot(
@@ -337,5 +347,14 @@ plt.ylabel("Load Demand [MW]")
 plt.title("Load Demand Time Series Including New Load")
 plt.legend()
 plt.show()
-plt.close()
+
+# Also create a duration curve for the scenario with new load
+sorted_load_with_new = np.sort(aggregated_load_with_new)[::-1]
+plt.figure(figsize=(10, 6))
+plt.plot(sorted_load_with_new, label='Duration Curve (with new load)', color='red')
+plt.xlabel("Hours")
+plt.ylabel("Aggregated Load Demand [MW]")
+plt.title("Duration Curve Including New Load")
+plt.legend()
+plt.show()
 
