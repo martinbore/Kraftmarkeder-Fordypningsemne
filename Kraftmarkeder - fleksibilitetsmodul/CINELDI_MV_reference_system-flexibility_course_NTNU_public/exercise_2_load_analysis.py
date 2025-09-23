@@ -322,4 +322,20 @@ print('Coincidence factor: ' + str(coincidence_factor))
 capacity_margin = P_lim - max_aggregated_load
 print('Capacity margin with respect to the power flow limit of ' + str(P_lim) + ' MW: ' + str(capacity_margin) + ' MW')
 
+# Exercise 8 - Plot the aggregated load demand time series for the grid area including the new load
+aggregated_load_time_series_with_new = aggregated_load_time_series.copy()
+aggregated_load_time_series_with_new['New Load'] = new_load_time_series
+plt.figure(figsize=(10, 6))
+for column in aggregated_load_time_series_with_new.columns:
+    plt.plot(
+        aggregated_load_time_series_with_new.index,
+        aggregated_load_time_series_with_new[column],
+        label=f'{column}'
+    )   
+plt.xlabel("Time [h]")
+plt.ylabel("Load Demand [MW]")
+plt.title("Load Demand Time Series Including New Load")
+plt.legend()
+plt.show()
+plt.close()
 
