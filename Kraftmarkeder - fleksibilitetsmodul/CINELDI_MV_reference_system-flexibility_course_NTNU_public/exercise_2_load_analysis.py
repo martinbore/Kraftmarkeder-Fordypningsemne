@@ -31,7 +31,8 @@ import numpy as np
 # (to be replaced by your own local data folder)
 #path_data_set         = r'C:\TET4565 Kraftmarkeder\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - fleksibilitetsmodul\7703070\CINELDI_MV_reference_system_v_2023-03-06' #Sigurd
 # path_data_set         = r'/Users/olavberger/Kraftmarkeder2 Fordypningsemne_ToUse/Kraftmarkeder-Fordypningsemne/Kraftmarkeder - fleksibilitetsmodul/7703070/CINELDI_MV_reference_system_v_2023-03-06' #Olav
-path_data_set = r'C:\Users\marti\Documents\Kraftmarkeder Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - fleksibilitetsmodul\7703070\CINELDI_MV_reference_system_v_2023-03-06' #Martin
+# path_data_set = r'C:\Users\marti\Documents\Kraftmarkeder Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - fleksibilitetsmodul\7703070\CINELDI_MV_reference_system_v_2023-03-06' #Martin PC
+path_data_set = r'\\sambaad.stud.ntnu.no\martbore\Documents\Kraftmarkeder2\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - fleksibilitetsmodul\7703070\CINELDI_MV_reference_system_v_2023-03-06' #Martin Linux
 
 filename_load_data_fullpath = os.path.join(path_data_set,'load_data_CINELDI_MV_reference_system.csv')
 filename_load_mapping_fullpath = os.path.join(path_data_set,'mapping_loads_to_CINELDI_MV_reference_grid.csv')
@@ -370,7 +371,7 @@ for column in aggregated_load_time_series_with_new.columns:
         aggregated_load_time_series_with_new.index,
         aggregated_load_time_series_with_new[column],
         label=f'{column}'
-    )   
+    ) 
 plt.xlabel("Time [h]")
 plt.ylabel("Load Demand [MW]")
 plt.title("Load Demand Time Series Including New Load")
@@ -381,6 +382,7 @@ save_plot('exercise_8_load_time_series_with_new_load.png')
 sorted_load_with_new = np.sort(aggregated_load_with_new)[::-1]
 plt.figure(figsize=(10, 6))
 plt.plot(sorted_load_with_new, label='Duration Curve (with new load)', color='red')
+plt.plot(P_lim * np.ones(8760), 'k--', label='Power Flow Limit (0.637 MW)', color = 'blue')
 plt.xlabel("Hours")
 plt.ylabel("Aggregated Load Demand [MW]")
 plt.title("Duration Curve Including New Load")
