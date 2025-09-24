@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import os
 
-# ====== Paths ======
+
 # Absolutt sti til mappen der skript og filer ligger
 
 base_dir = Path(r"\\sambaad.stud.ntnu.no\martbore\Documents\Kraftmarkeder2\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul") #Martin
