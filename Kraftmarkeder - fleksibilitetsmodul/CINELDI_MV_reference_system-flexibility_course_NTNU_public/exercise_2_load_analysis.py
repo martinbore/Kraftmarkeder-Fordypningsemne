@@ -389,6 +389,7 @@ plt.title("Duration Curve Including New Load")
 plt.legend()
 save_plot('exercise_8_duration_curve_with_new_load.png')
 
+
 # Exercise 9 - Calculate the maximum amount of overloading in the area after the new load is added.
 max_aggregated_load_with_new = aggregated_load_with_new.max()
 print('Maximum aggregated load demand in the area including new load: ' + str(max_aggregated_load_with_new) + ' MW')
@@ -396,8 +397,14 @@ overloading_amount = max(0, max_aggregated_load_with_new - P_lim)
 print('Amount of overloading (if any) with respect to the power flow limit of ' + str(P_lim) + ' MW: ' + str(overloading_amount) + ' MW')
 
 # Exercise 10 - Find the number of hours per year that the load demand would have to be reduced to avoid congestion
-hours_to_reduce = (overloading_amount / (P_lim - max_aggregated_load_with_new)) * 8760 if (P_lim - max_aggregated_load_with_new) > 0 else 0
-print('Number of hours per year to reduce load demand to avoid congestion: ' + str(hours_to_reduce))
+hours_to_reduce = 0
+for i in range(len(sorted_load_with_new)):
+    if sorted_load_with_new[i] >= P_lim:
+        hours_to_reduce = i + 1
+    elif sorted_load_with_new[i] < P_lim:
+        hours_to_reduce += ((P_lim - sorted_load_with_new[i-1]) / (sorted_load_with_new[i] - sorted_load_with_new[i-1])) * (i-i-1)
+        break
+print('Number of hours per year to reduce load demand to avoid congestion: ' + str(hours_to_reduce) + '\n')
 
 # Exercise 11 - Characterize the need for flexibility in the area
 
@@ -420,10 +427,6 @@ print("- The curve may not reflect the actual operational constraints and capabi
 print("- It does not consider the geographical distribution of loads and generation, which can impact flexibility requirements.")
 
 # Exercise 13 - Compare load duration curves for different assumptions about the new load
-# Now assume that the new load needs to consume 0.4 MW of power constantly throughout
-# the year and compare a) the load duration curve that you obtain with b) the load duration
-# curve found in task 7 (with a time-dependent new load), and c) the load duration curve found
-# in task 5 (for only the existing loads)
 
 # Prepare data for all three scenarios
 # a) Constant new load of 0.4 MW
