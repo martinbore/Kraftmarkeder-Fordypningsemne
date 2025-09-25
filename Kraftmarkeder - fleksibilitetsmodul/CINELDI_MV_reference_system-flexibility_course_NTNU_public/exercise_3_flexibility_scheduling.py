@@ -143,7 +143,19 @@ plt.show()
 
 
 
-# Exercise 3 - Plot and explain the net profile for the Household:
+# Task 4 - Plot and explain the net profile for the Household:
+
+net_profile_with_battery = Base_load - PV_prod + x_c - x_d
+net_profile_without_battery = Base_load - PV_prod
+plt.figure(figsize=(10,5))
+plt.plot(Hours, net_profile_with_battery, label='Net Load Profile with Battery (kWh)', color='purple')
+plt.plot(Hours, net_profile_without_battery, label='Net Load Profile without Battery (kWh)', color='orange')
+plt.title('Net Load Profile with and without Battery Operation')
+plt.xlabel('Hour')
+plt.ylabel('Energy (kWh)')
+plt.legend()
+plt.grid()
+plt.show()
 
 
 
