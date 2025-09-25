@@ -64,21 +64,19 @@ def objective_rule(m):
     return sum((dict_Prices[h] * (dict_Base_load[h] - dict_PV_prod[h] + m.x_c[h] - m.x_d[h])) for h in Hours)
 
 # The constraints:
+print(Hours)
 def soc_constraint(m,h):
-    if(h == min(Hours)):
-        return m.soc[h] == 0 + (m.x_c[h] * charging_efficiency - m.x_d[h] / discharging_efficiency)
+    if (h == min(Hours)):
+        return m.soc[h] == (m.x_c[h] * charging_efficiency - m.x_d[h] / discharging_efficiency)
     else:
         return m.soc[h] == m.soc[h-1] + (m.x_c[h] * charging_efficiency - m.x_d[h] / discharging_efficiency)
-    
-def energy_balance(m,h):
-    return dict_Base_load[h] + m.x_c[h] == m.x_d[h] + dict_PV_prod[h]
+
 
 
 # Task 3 - Solving the optimization model:
 
 model.objective = en.Objective(rule = objective_rule, sense = en.minimize)
 model.soc_con = en.Constraint(Hours, rule = soc_constraint)
-model.energy_bal = en.Constraint(Hours, rule = energy_balance)
 opt = SolverFactory('glpk')
 start = time.time()
 results = opt.solve(model)
@@ -92,7 +90,7 @@ for h in Hours:
 
 
 
-'''
+
 # To display the results in the console:
 model.display()
 #%% Plotting the results
@@ -101,13 +99,51 @@ x_c = np.zeros(len(Hours))
 x_d = np.zeros(len(Hours))
 soc = np.zeros(len(Hours))
 for h in Hours:
-    x_c[h] = en.value(model.x_c[h])
-    x_d[h] = en.value(model.x_d[h])
-    soc[h] = en.value(model.soc[h])
+    x_c[h-1] = en.value(model.x_c[h])
+    x_d[h-1] = en.value(model.x_d[h])
+    soc[h-1] = en.value(model.soc[h])
 # Plot the results
 plt.figure(figsize=(10,8))
-plt.subplot(3,1,1)
-'''
+plt.subplot(2,1,1)
+plt.plot(Hours, x_c, label='Charging power (kW)')
+plt.plot(Hours, x_d, label='Discharging power (kW)')
+plt.title('Battery Charging and Discharging Power Schedule')
+plt.xlabel('Hour')
+plt.ylabel('Power (kW)')
+plt.legend()
+plt.grid()
+plt.subplot(2,1,2)
+plt.plot(Hours, soc, label='State of Charge (kWh)', color='orange')
+plt.title('Battery State of Charge')
+plt.xlabel('Hour')
+plt.ylabel('Energy (kWh)')
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+# Plot the electricity price profile with the production and load profile
+plt.figure(figsize=(10,8))
+plt.subplot(2,1,1)
+plt.plot(Hours, Price, label='Electricity Price (NOK/kWh)', color='green')
+plt.title('Electricity Price Profile')
+plt.xlabel('Hour')
+plt.ylabel('Price (NOK/kWh)')
+plt.legend()
+plt.grid()
+plt.subplot(2,1,2)
+plt.plot(Hours, Base_load, label='Base Load (kWh)', color='red')
+plt.plot(Hours, PV_prod, label='PV Production (kWh)', color='blue')
+plt.title('Load and PV Production Profile')
+plt.xlabel('Hour')
+plt.ylabel('Energy (kWh)')
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+
+
+
+# Exercise 3 - Plot and explain the net profile for the Household:
 
 
 
