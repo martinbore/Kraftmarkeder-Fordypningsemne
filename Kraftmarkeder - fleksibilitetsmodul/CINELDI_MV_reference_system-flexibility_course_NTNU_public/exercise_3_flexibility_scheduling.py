@@ -86,7 +86,7 @@ end = time.time()
 print('Solving time (seconds): ', end - start)
 print("Printing the schedules:")
 for h in Hours:
-    print('Hour: ', h, ' Charge (MW): ', en.value(model.x_c[h]), ' Discharge (MW): ', en.value(model.x_d[h]), ' State of Charge (MWh): ', en.value(model.soc[h]))
+    print('Hour: ', h, ' Charge (kW): ', en.value(model.x_c[h]), ' Discharge (kW): ', en.value(model.x_d[h]), ' State of Charge (kWh): ', en.value(model.soc[h]))
 
 
 
@@ -157,5 +157,91 @@ plt.legend()
 plt.grid()
 plt.show()
 
+# Task 6 - Add a constraint for limiting the power imported from the grid to the household
+# We limit the net power consumption, i.e the import from the grid for each hour
+P_limit = 5.8
+def power_limit_constraint(m,h):
+    return (dict_Base_load[h] - dict_PV_prod[h] + m.x_c[h] - m.x_d[h]) <= P_limit
 
+model_new = en.ConcreteModel()
+
+# Charging and discharging power variables:
+# This is given in kW:
+model_new.x_c = Var(Hours, within = en.NonNegativeReals, bounds = (0,charging_power_limit))
+model_new.x_d = Var(Hours, within = en.NonNegativeReals, bounds = (0,discharging_power_limit))
+
+# State of charge variable:
+# This is given in kWh:
+model_new.soc = Var(Hours, within = en.NonNegativeReals, bounds = (0,capacity))
+
+model_new.power_limit_con = en.Constraint(Hours, rule=power_limit_constraint)
+model_new.objective = en.Objective(rule = objective_rule, sense = en.minimize)
+model_new.soc_con = en.Constraint(Hours, rule = soc_constraint)
+opt = SolverFactory('glpk')
+results = opt.solve(model_new)
+print("Solver status:", results.solver.status)
+for h in Hours:
+    print('Hour: ', h, ' Charge (kW): ', en.value(model_new.x_c[h]), ' Discharge (kW): ', en.value(model_new.x_d[h]), ' State of Charge (kWh): ', en.value(model_new.soc[h]))
+print("The net system cost: ", en.value(model_new.objective))
+
+#%% Plotting the results
+# Extract the results from the Pyomo variables:
+x_c = np.zeros(len(Hours))
+x_d = np.zeros(len(Hours))
+soc = np.zeros(len(Hours))
+for h in Hours:
+    x_c[h-1] = en.value(model_new.x_c[h])
+    x_d[h-1] = en.value(model_new.x_d[h])
+    soc[h-1] = en.value(model_new.soc[h])
+# Plot the results
+plt.figure(figsize=(10,8))
+plt.subplot(2,1,1)
+plt.plot(Hours, x_c, label='Charging power (kW)')
+plt.plot(Hours, x_d, label='Discharging power (kW)')
+plt.title('Battery Charging and Discharging Power Schedule including household power limit')
+plt.xlabel('Hour')
+plt.ylabel('Power (kW)')
+plt.legend()
+plt.grid()
+plt.subplot(2,1,2)
+plt.plot(Hours, soc, label='State of Charge (kWh)', color='orange')
+plt.title('Battery State of Charge')
+plt.xlabel('Hour')
+plt.ylabel('Energy (kWh)')
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+# Plot the electricity price profile with the production and load profile
+plt.figure(figsize=(10,8))
+plt.subplot(2,1,1)
+plt.plot(Hours, Price, label='Electricity Price (NOK/kWh)', color='green')
+plt.title('Electricity Price Profile including household power limit')
+plt.xlabel('Hour')
+plt.ylabel('Price (NOK/kWh)')
+plt.legend()
+plt.grid()
+plt.subplot(2,1,2)
+plt.plot(Hours, Base_load, label='Base Load (kWh)', color='red')
+plt.plot(Hours, PV_prod, label='PV Production (kWh)', color='blue')
+plt.title('Load and PV Production Profile including household power limit')
+plt.xlabel('Hour')
+plt.ylabel('Energy (kWh)')
+plt.legend()
+plt.grid()
+plt.tight_layout()
+plt.show()
+
+
+net_profile_with_battery = Base_load - PV_prod + x_c - x_d
+net_profile_without_battery = Base_load - PV_prod
+plt.figure(figsize=(10,5))
+plt.plot(Hours, net_profile_with_battery, label='Net Load Profile with Battery (kWh)', color='purple')
+plt.plot(Hours, net_profile_without_battery, label='Net Load Profile without Battery (kWh)', color='orange')
+plt.title('Net Load Profile with and without Battery Operation with Power limit')
+plt.xlabel('Hour')
+plt.ylabel('Energy (kWh)')
+plt.legend()
+plt.grid()
+plt.show()
 
