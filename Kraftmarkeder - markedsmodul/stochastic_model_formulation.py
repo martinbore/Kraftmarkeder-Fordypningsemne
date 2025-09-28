@@ -2,18 +2,15 @@
 from pyomo.environ import *
 import random
 
-# ---------------------------
+
 # Sets
-# ---------------------------
 T = list(range(1,49))      # 1..48
 T1 = list(range(1,25))     # 1..24
 T2 = list(range(25,49))    # 25..48
 S = [1,2,3,4,5]            # inflow scenarios
 
-# ---------------------------
-# Parameters (example data)
-# ---------------------------
-# Electricity price p_t = 50 + t
+
+# Parameters
 p = {t: 50+t for t in T}
 
 # Inflows
@@ -36,9 +33,6 @@ M_conv = 3.6/1000     # Mm3 per (m3/s) per hour
 E_conv = 0.657        # kWh per m3
 WV_end = 52600.0      # EUR per Mm3
 
-# ---------------------------
-# Model
-# ---------------------------
 model = ConcreteModel()
 
 # Sets
@@ -59,9 +53,8 @@ model.M_conv = Param(initialize=M_conv)
 model.E_conv = Param(initialize=E_conv)
 model.WV_end = Param(initialize=WV_end)
 
-# ---------------------------
+
 # Decision variables
-# ---------------------------
 model.x  = Var(model.T1, domain=NonNegativeReals, bounds=(0,Pmax))
 model.Q  = Var(model.T1, domain=NonNegativeReals, bounds=(0,Qmax))
 model.V  = Var(model.T1, domain=NonNegativeReals, bounds=(0,Vmax))
@@ -70,10 +63,10 @@ model.x_s = Var(model.T2, model.S, domain=NonNegativeReals, bounds=(0,Pmax))
 model.Q_s = Var(model.T2, model.S, domain=NonNegativeReals, bounds=(0,Qmax))
 model.V_s = Var(model.T2, model.S, domain=NonNegativeReals, bounds=(0,Vmax))
 
-# ---------------------------
-# Constraints
-# ---------------------------
 
+
+
+# Constraints
 # Reservoir balance day 1
 def reservoir_day1_rule(m,t):
     if t == 1:
@@ -91,7 +84,6 @@ model.res_day2 = Constraint(model.T2, model.S, rule=reservoir_day2_rule)
 # Link production and discharge (day 1)
 def prod_day1_rule(m,t):
     return m.x[t] == m.E_conv*m.M_conv*m.Q[t]
-    # NB: factor 1000 fordi du har *1000 i objektivfunksjonen i LaTeX
 model.prod_day1 = Constraint(model.T1, rule=prod_day1_rule)
 
 # Link production and discharge (day 2)
@@ -99,9 +91,8 @@ def prod_day2_rule(m,t,s):
     return m.x_s[t,s] == m.E_conv*m.M_conv*m.Q_s[t,s]
 model.prod_day2 = Constraint(model.T2, model.S, rule=prod_day2_rule)
 
-# ---------------------------
-# Objective
-# ---------------------------
+
+# Objective function
 def obj_rule(m):
     term1 = sum(m.p[t]*1000*m.x[t] for t in m.T1)
     term2 = sum(m.pi[s]*( sum(m.p[t]*1000*m.x_s[t,s] for t in m.T2) 
@@ -109,9 +100,7 @@ def obj_rule(m):
     return term1 + term2
 model.Obj = Objective(rule=obj_rule, sense=maximize)
 
-# ---------------------------
-# Solve
-# ---------------------------
+# Solving the model
 if __name__ == "__main__":
     solver = SolverFactory("glpk")
     result = solver.solve(model, tee=True)
@@ -124,4 +113,4 @@ if __name__ == "__main__":
         print(f"\nScenario {s}:")
         for t in model.T2:
             print(f"Hour {t}: Production = {value(model.x_s[t,s]):.2f} kW, Discharge = {value(model.Q_s[t,s]):.2f} m3/s, Volume = {value(model.V_s[t,s]):.2f} Mm3")
-    
+
