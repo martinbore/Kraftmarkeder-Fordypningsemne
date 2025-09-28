@@ -100,19 +100,21 @@ for s in S:
             return m.V[t] == m.V0 + m.M_conv*(m.I[t] - m.Q[t])
         return m.V[t] == m.V[t-1] + m.M_conv*(m.I[t] - m.Q[t])
     model_s.res_day1 = Constraint(model_s.T1, rule=reservoir_day1_rule)
+    
     def reservoir_day2_rule(m,t):
         if t == 25:
             return m.V_s[t] == m.V[24] + m.M_conv*(m.I_s[t] - m.Q_s[t])
         return m.V_s[t] == m.V_s[t-1] + m.M_conv*(m.I_s[t] - m.Q_s[t])
-    
     model_s.res_day2 = Constraint(model_s.T2, rule=reservoir_day2_rule) 
+    
     def prod_day1_rule(m,t):
         return m.x[t] == m.E_conv*m.M_conv*m.Q[t]
-    
     model_s.prod_day1 = Constraint(model_s.T1, rule=prod_day1_rule)
+    
     def prod_day2_rule(m,t):
         return m.x_s[t] == m.E_conv*m.M_conv*m.Q_s[t]
     model_s.prod_day2 = Constraint(model_s.T2, rule=prod_day2_rule)
+    
     def obj_rule(m):
         term1 = sum(m.p[t]*1000*m.x[t] for t in m.T1)
         term2 = sum(m.p[t]*1000*m.x_s[t] for t in m.T2) + m.WV_end*m.V_s[48]
