@@ -1,5 +1,6 @@
 from pyomo.environ import *
-
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # Sets
 T = list(range(1,49))      # 1..48
@@ -20,7 +21,7 @@ for s in S:
 
 # Scenario probabilities
 pi = {s: 1.0/len(S) for s in S}
-
+ 
 # Constants
 V0 = 3.0
 Vmax = 4.5
@@ -133,3 +134,44 @@ for s in S:
         print(f"Hour {t}: Production = {value(model_s.x_s[t]):.2f} MW, Discharge = {value(model_s.Q_s[t]):.2f} m3/s, Volume = {value(model_s.V_s[t]):.2f} Mm3")
     print("\n-----------------------------")
     
+    # Making a dataframe for each scenario and storing results, such that the results can be easily analyzed later through plots
+    df_results = pd.DataFrame({
+        'Hour': list(model_s.T1) + list(model_s.T2),
+        'Production_MW': [value(model_s.x[t]) for t in model_s.T1] + [value(model_s.x_s[t]) for t in model_s.T2],
+        'Discharge_m3s': [value(model_s.Q[t]) for t in model_s.T1] + [value(model_s.Q_s[t]) for t in model_s.T2],
+        'Volume_Mm3': [value(model_s.V[t]) for t in model_s.T1] + [value(model_s.V_s[t]) for t in model_s.T2]
+    })
+    df_results.to_csv(f'scenario_{s}_results.csv', index=False)
+
+
+plt.figure(figsize=(12, 6))
+for s in S:
+    df = pd.read_csv(f'scenario_{s}_results.csv')
+    plt.plot(df['Hour'], df['Production_MW'], label=f'Scenario {s}')
+plt.xlabel('Hour')
+plt.ylabel('Production (MW)')
+plt.title('Production over Time for Different Inflow Scenarios')
+plt.legend()
+plt.show()
+
+plt.figure(figsize=(12, 6))
+for s in S:
+    df = pd.read_csv(f'scenario_{s}_results.csv')
+    plt.plot(df['Hour'], df['Volume_Mm3'], label=f'Scenario {s}')
+plt.xlabel('Hour')
+plt.ylabel('Reservoir Volume (Mm3)')
+plt.title('Reservoir Volume over Time for Different Inflow Scenarios')
+plt.legend()
+plt.show()
+
+
+plt.figure(figsize=(12, 6))
+for s in S:
+    df = pd.read_csv(f'scenario_{s}_results.csv')
+    plt.plot(df['Hour'], df['Discharge_m3s'], label=f'Scenario {s}')
+plt.xlabel('Hour')
+plt.ylabel('Discharge (m3/s)')
+plt.title('Discharge over Time for Different Inflow Scenarios')
+plt.legend()
+plt.show()
+
