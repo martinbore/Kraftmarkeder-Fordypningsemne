@@ -127,8 +127,8 @@ for s in S:
     print("Reservoir at t=24:", value(model_s.V[24]), "Mm3")
     print("Reservoir at t=48:", value(model_s.V_s[48]), "Mm3")
     for t in model_s.T1:
-        print(f"Hour {t}: Production = {value(model_s.x[t]):.2f} kW, Discharge = {value(model_s.Q[t]):.2f} m3/s, Volume = {value(model_s.V[t]):.2f} Mm3")
+        print(f"Hour {t}: Production = {value(model_s.x[t]):.2f} MW, Discharge = {value(model_s.Q[t]):.2f} m3/s, Volume = {value(model_s.V[t]):.2f} Mm3")
     for t in model_s.T2:
-        print(f"Hour {t}: Production = {value(model_s.x_s[t]):.2f} kW, Discharge = {value(model_s.Q_s[t]):.2f} m3/s, Volume = {value(model_s.V_s[t]):.2f} Mm3")
+        print(f"Hour {t}: Production = {value(model_s.x_s[t]):.2f} MW, Discharge = {value(model_s.Q_s[t]):.2f} m3/s, Volume = {value(model_s.V_s[t]):.2f} Mm3")
     print("\n-----------------------------")
     

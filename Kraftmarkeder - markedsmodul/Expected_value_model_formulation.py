@@ -87,6 +87,6 @@ print("Objective value:", value(model.Obj), "EUR")
 print("Reservoir at t=24:", value(model.V[24]), "Mm3")
 print("Reservoir at t=48:", value(model.V[48]), "Mm3")
 for t in model.T:
-    print(f"Hour {t}: Production = {value(model.x[t]):.2f} kW, Discharge = {value(model.Q[t]):.2f} m3/s, Volume = {value(model.V[t]):.2f} Mm3")
+    print(f"Hour {t}: Production = {value(model.x[t]):.2f} MW, Discharge = {value(model.Q[t]):.2f} m3/s, Volume = {value(model.V[t]):.2f} Mm3")
 
 

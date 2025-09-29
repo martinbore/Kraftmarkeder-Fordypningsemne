@@ -108,9 +108,9 @@ if __name__ == "__main__":
     print("Reservoir at t=24:", value(model.V[24]), "Mm3")
     print("Reservoir at t=48 (scenario 1):", value(model.V_s[48,1]), "Mm3")
     for t in model.T1:
-        print(f"Hour {t}: Production = {value(model.x[t]):.2f} kW, Discharge = {value(model.Q[t]):.2f} m3/s, Volume = {value(model.V[t]):.2f} Mm3")
+        print(f"Hour {t}: Production = {value(model.x[t]):.2f} MW, Discharge = {value(model.Q[t]):.2f} m3/s, Volume = {value(model.V[t]):.2f} Mm3")
     for s in model.S:
         print(f"\nScenario {s}:")
         for t in model.T2:
-            print(f"Hour {t}: Production = {value(model.x_s[t,s]):.2f} kW, Discharge = {value(model.Q_s[t,s]):.2f} m3/s, Volume = {value(model.V_s[t,s]):.2f} Mm3")
+            print(f"Hour {t}: Production = {value(model.x_s[t,s]):.2f} MW, Discharge = {value(model.Q_s[t,s]):.2f} m3/s, Volume = {value(model.V_s[t,s]):.2f} Mm3")
 
