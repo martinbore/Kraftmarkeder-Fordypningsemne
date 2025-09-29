@@ -121,7 +121,8 @@ for s in S:
         return term1 + term2
     
     model_s.Obj = Objective(rule=obj_rule, sense=maximize)
-    solver = SolverFactory("glpk")
+    solver = SolverFactory("gurobi")
+    # solver = SolverFactory("glpk")
     result = solver.solve(model_s, tee=False)
     print("Objective value:", value(model_s.Obj), "EUR")
     print("Reservoir at t=24:", value(model_s.V[24]), "Mm3")
