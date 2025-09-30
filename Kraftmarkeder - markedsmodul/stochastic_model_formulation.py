@@ -1,6 +1,8 @@
 # The deterministic equivalent model formulation for the given problem:
 from pyomo.environ import *
 import random
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 # Sets
@@ -102,7 +104,8 @@ model.Obj = Objective(rule=obj_rule, sense=maximize)
 
 # Solving the model
 if __name__ == "__main__":
-    solver = SolverFactory("glpk")
+    # solver = SolverFactory("glpk")
+    solver = SolverFactory("gurobi")
     result = solver.solve(model, tee=True)
     print("\nObjective value:", value(model.Obj), "EUR")
     print("Reservoir at t=24:", value(model.V[24]), "Mm3")
@@ -115,3 +118,37 @@ if __name__ == "__main__":
             print(f"Hour {t}: Production = {value(model.x_s[t,s]):.2f} MW, Discharge = {value(model.Q_s[t,s]):.2f} m3/s, Volume = {value(model.V_s[t,s]):.2f} Mm3")
 
 
+# Plotting the results for production, reservoir volume and discharge for the two day schedule
+plt.figure(figsize=(12, 6))
+t_1 = T1
+production_1 = [value(model.x[t]) for t in T1]
+plt.plot(t_1, production_1, label='Day 1 Production', color='blue')
+t_2 = T2
+for s in S:
+    production_2 = [value(model.x_s[t,s]) for t in T2]
+    plt.plot(t_2, production_2, label=f'Day 2 Production Scenario {s+1}')
+plt.xlabel('Hour')
+plt.ylabel('Production (MW)')
+plt.title('Production Schedule Over 48 Hours')
+plt.grid(True)
+plt.xticks(T)
+plt.legend()
+# plt.show()
+plt.savefig('production_schedule.png')
+
+plt.figure(figsize=(12, 6))
+t_1 = T1
+reservoir_volume_1 = [value(model.V[t]) for t in T1]
+plt.plot(t_1, reservoir_volume_1, label='Day 1 Reservoir Volume', color='orange')
+t_2 = T2
+for s in S:
+    reservoir_volume_2 = [value(model.V_s[t,s]) for t in T2]
+    plt.plot(t_2, reservoir_volume_2, label=f'Day 2 Reservoir Volume Scenario {s+1}')
+plt.xlabel('Hour')
+plt.ylabel('Reservoir Volume (Mm3)')
+plt.title('Reservoir Volume Over 48 Hours')
+plt.grid(True)
+plt.xticks(T)
+plt.legend()
+# plt.show()
+plt.savefig('reservoir_volume.png')
