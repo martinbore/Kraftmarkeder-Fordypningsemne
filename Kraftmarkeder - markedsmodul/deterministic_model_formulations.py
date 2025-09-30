@@ -109,31 +109,35 @@ for s in S:
     model_s.res_day2 = Constraint(model_s.T2, rule=reservoir_day2_rule) 
     
     def prod_day1_rule(m,t):
-        return m.x[t] == m.E_conv*m.M_conv*m.Q[t]
+        return m.x[t] == m.E_conv*m.M_conv*m.Q[t]*1000
     model_s.prod_day1 = Constraint(model_s.T1, rule=prod_day1_rule)
     
     def prod_day2_rule(m,t):
-        return m.x_s[t] == m.E_conv*m.M_conv*m.Q_s[t]
+        return m.x_s[t] == m.E_conv*m.M_conv*m.Q_s[t]*1000
     model_s.prod_day2 = Constraint(model_s.T2, rule=prod_day2_rule)
     
     def obj_rule(m):
-        term1 = sum(m.p[t]*1000*m.x[t] for t in m.T1)
-        term2 = sum(m.p[t]*1000*m.x_s[t] for t in m.T2) + m.WV_end*m.V_s[48]
+        term1 = sum(m.p[t]*m.x[t] for t in m.T1)
+        term2 = sum(m.p[t]*m.x_s[t] for t in m.T2) + m.WV_end*m.V_s[48]
         return term1 + term2
     
     model_s.Obj = Objective(rule=obj_rule, sense=maximize)
+    model_s.dual = Suffix(direction=Suffix.IMPORT)
     solver = SolverFactory("gurobi")
     # solver = SolverFactory("glpk")
     result = solver.solve(model_s, tee=False)
-    print("Objective value:", value(model_s.Obj), "EUR")
-    print("Reservoir at t=24:", value(model_s.V[24]), "Mm3")
-    print("Reservoir at t=48:", value(model_s.V_s[48]), "Mm3")
+
+    print("Objective value:", round(value(model_s.Obj), 2), "EUR")
+    print("Reservoir at t=24:", round(value(model_s.V[24]), 2), "Mm3")
+    print("Reservoir at t=48:", round(value(model_s.V_s[48]), 2), "Mm3")
     for t in model_s.T1:
         print(f"Hour {t}: Production = {value(model_s.x[t]):.2f} MW, Discharge = {value(model_s.Q[t]):.2f} m3/s, Volume = {value(model_s.V[t]):.2f} Mm3")
     for t in model_s.T2:
         print(f"Hour {t}: Production = {value(model_s.x_s[t]):.2f} MW, Discharge = {value(model_s.Q_s[t]):.2f} m3/s, Volume = {value(model_s.V_s[t]):.2f} Mm3")
     print("\n-----------------------------")
-    
+
+
+
     # Making a dataframe for each scenario and storing results, such that the results can be easily analyzed later through plots
     df_results = pd.DataFrame({
         'Hour': list(model_s.T1) + list(model_s.T2),
