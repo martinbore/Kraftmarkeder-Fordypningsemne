@@ -7,7 +7,7 @@ import random
 T = list(range(1,49))      # 1..48
 T1 = list(range(1,25))     # 1..24
 T2 = list(range(25,49))    # 25..48
-S = [1,2,3,4,5]            # inflow scenarios
+S = [0,1,2,3,4]            # inflow scenarios
 
 
 # Parameters
@@ -16,10 +16,13 @@ p = {t: 50+t for t in T}
 # Inflows
 I = {t: 50 for t in T1}   # deterministic inflow day 1
 I_s = {}
-random.seed(0)
+
 for s in S:
     for t in T2:
         I_s[(t,s)] = 10*s
+        print(I_s[(t,s)])
+
+
 
 # Scenario probabilities
 pi = {s: 1.0/len(S) for s in S}
@@ -64,8 +67,6 @@ model.Q_s = Var(model.T2, model.S, domain=NonNegativeReals, bounds=(0,Qmax))
 model.V_s = Var(model.T2, model.S, domain=NonNegativeReals, bounds=(0,Vmax))
 
 
-
-
 # Constraints
 # Reservoir balance day 1
 def reservoir_day1_rule(m,t):
@@ -83,20 +84,19 @@ model.res_day2 = Constraint(model.T2, model.S, rule=reservoir_day2_rule)
 
 # Link production and discharge (day 1)
 def prod_day1_rule(m,t):
-    return m.x[t] == m.E_conv*m.M_conv*m.Q[t]
+    return m.x[t] == m.E_conv*m.M_conv*m.Q[t]*1000
 model.prod_day1 = Constraint(model.T1, rule=prod_day1_rule)
 
 # Link production and discharge (day 2)
 def prod_day2_rule(m,t,s):
-    return m.x_s[t,s] == m.E_conv*m.M_conv*m.Q_s[t,s]
+    return m.x_s[t,s] == m.E_conv*m.M_conv*m.Q_s[t,s]*1000
 model.prod_day2 = Constraint(model.T2, model.S, rule=prod_day2_rule)
 
 
 # Objective function
 def obj_rule(m):
-    term1 = sum(m.p[t]*1000*m.x[t] for t in m.T1)
-    term2 = sum(m.pi[s]*( sum(m.p[t]*1000*m.x_s[t,s] for t in m.T2) 
-                          + m.WV_end*m.V_s[48,s]) for s in m.S)
+    term1 = sum(m.p[t]*m.x[t] for t in m.T1)
+    term2 = sum(m.pi[s]*(sum(m.p[t]*m.x_s[t,s] for t in m.T2) + m.WV_end*m.V_s[48,s]) for s in m.S)
     return term1 + term2
 model.Obj = Objective(rule=obj_rule, sense=maximize)
 
@@ -113,4 +113,5 @@ if __name__ == "__main__":
         print(f"\nScenario {s}:")
         for t in model.T2:
             print(f"Hour {t}: Production = {value(model.x_s[t,s]):.2f} MW, Discharge = {value(model.Q_s[t,s]):.2f} m3/s, Volume = {value(model.V_s[t,s]):.2f} Mm3")
+
 

@@ -7,7 +7,7 @@ import random
 T = list(range(1,49))      # 1..48
 T1 = list(range(1,25))     # 1..24
 T2 = list(range(25,49))    # 25..48
-S = [1,2,3,4,5]            # inflow scenarios
+S = [0,1,2,3,4]            # inflow scenarios
 
 
 # Parameters
@@ -21,6 +21,7 @@ for t in T2:
     E_I[(t)] = 0
     for s in S:
         E_I[(t)]+=(1/len(S))*10*s
+        
 
 
 # Constants
@@ -61,7 +62,7 @@ model.V  = Var(model.T, domain=NonNegativeReals, bounds=(0,Vmax))
 
 # Objective function:
 def objective_func(m):
-    return sum(m.p[t]*1000*m.x[t] for t in m.T1) + sum(m.p[t]*1000*m.x[t] for t in m.T2) + m.WV_end*m.V[48]
+    return sum(m.p[t]*m.x[t] for t in m.T1) + sum(m.p[t]*m.x[t] for t in m.T2) + m.WV_end*m.V[48]
 
 # Constraints:
 def reservoir_day1_rule(m,t):
@@ -77,7 +78,7 @@ def reservoir_day2_rule(m,t):
 model.res_day2 = Constraint(model.T2, rule=reservoir_day2_rule) 
 
 def prod_constraint(m,t):
-    return m.x[t] == m.E_conv*m.M_conv*m.Q[t]
+    return m.x[t] == m.E_conv*m.M_conv*m.Q[t]*1000
 model.prod_con = Constraint(model.T, rule = prod_constraint)
 
 model.Obj = Objective(rule=objective_func, sense=maximize)
