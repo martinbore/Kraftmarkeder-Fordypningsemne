@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 T = list(range(1,49))      # 1..48
 T1 = list(range(1,25))     # 1..24
 T2 = list(range(25,49))    # 25..48
-S = [1,2,3,4,5]            # inflow scenarios
+S = [0,1,2,3,4]            # inflow scenarios
 
 
 # Parameters
@@ -123,8 +123,8 @@ for s in S:
     
     model_s.Obj = Objective(rule=obj_rule, sense=maximize)
     model_s.dual = Suffix(direction=Suffix.IMPORT)
-    solver = SolverFactory("gurobi")
-    # solver = SolverFactory("glpk")
+    # solver = SolverFactory("gurobi")
+    solver = SolverFactory("glpk")
     result = solver.solve(model_s, tee=False)
 
     print("Objective value:", round(value(model_s.Obj), 2), "EUR")
