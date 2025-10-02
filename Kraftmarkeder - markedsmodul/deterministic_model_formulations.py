@@ -123,8 +123,8 @@ for s in S:
     
     model_s.Obj = Objective(rule=obj_rule, sense=maximize)
     model_s.dual = Suffix(direction=Suffix.IMPORT)
-    # solver = SolverFactory("gurobi")
-    solver = SolverFactory("glpk")
+    solver = SolverFactory("gurobi")
+    # solver = SolverFactory("glpk")
     result = solver.solve(model_s, tee=False)
 
     print("Objective value:", round(value(model_s.Obj), 2), "EUR")
@@ -151,31 +151,33 @@ for s in S:
 plt.figure(figsize=(12, 6))
 for s in S:
     df = pd.read_csv(f'scenario_{s}_results.csv')
-    plt.plot(df['Hour'], df['Production_MW'], label=f'Scenario {s}')
+    plt.plot(df['Hour'], df['Production_MW'], label=f'Scenario {s+1}')
 plt.xlabel('Hour')
 plt.ylabel('Production (MW)')
 plt.title('Production over Time for Different Inflow Scenarios')
 plt.legend()
-plt.show()
+# plt.show()
+plt.savefig('production_scenarios.png')
 
 plt.figure(figsize=(12, 6))
 for s in S:
     df = pd.read_csv(f'scenario_{s}_results.csv')
-    plt.plot(df['Hour'], df['Volume_Mm3'], label=f'Scenario {s}')
+    plt.plot(df['Hour'], df['Volume_Mm3'], label=f'Scenario {s+1}')
 plt.xlabel('Hour')
 plt.ylabel('Reservoir Volume (Mm3)')
 plt.title('Reservoir Volume over Time for Different Inflow Scenarios')
 plt.legend()
-plt.show()
+# plt.show()
+plt.savefig('reservoir_volume_scenarios.png')
 
 
-plt.figure(figsize=(12, 6))
-for s in S:
-    df = pd.read_csv(f'scenario_{s}_results.csv')
-    plt.plot(df['Hour'], df['Discharge_m3s'], label=f'Scenario {s}')
-plt.xlabel('Hour')
-plt.ylabel('Discharge (m3/s)')
-plt.title('Discharge over Time for Different Inflow Scenarios')
-plt.legend()
-plt.show()
+# plt.figure(figsize=(12, 6))
+# for s in S:
+#     df = pd.read_csv(f'scenario_{s}_results.csv')
+#     plt.plot(df['Hour'], df['Discharge_m3s'], label=f'Scenario {s+1}')
+# plt.xlabel('Hour')
+# plt.ylabel('Discharge (m3/s)')
+# plt.title('Discharge over Time for Different Inflow Scenarios')
+# plt.legend()
+# plt.show()
 

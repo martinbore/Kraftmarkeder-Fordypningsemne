@@ -1,6 +1,8 @@
 # Formulating the problem just using expected values:
 from pyomo.environ import *
 import random
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 # Sets
@@ -82,7 +84,8 @@ def prod_constraint(m,t):
 model.prod_con = Constraint(model.T, rule = prod_constraint)
 
 model.Obj = Objective(rule=objective_func, sense=maximize)
-solver = SolverFactory("glpk")
+# solver = SolverFactory("glpk")
+solver = SolverFactory("gurobi")
 result = solver.solve(model, tee=False)
 print("Objective value:", value(model.Obj), "EUR")
 print("Reservoir at t=24:", value(model.V[24]), "Mm3")
@@ -90,4 +93,36 @@ print("Reservoir at t=48:", value(model.V[48]), "Mm3")
 for t in model.T:
     print(f"Hour {t}: Production = {value(model.x[t]):.2f} MW, Discharge = {value(model.Q[t]):.2f} m3/s, Volume = {value(model.V[t]):.2f} Mm3")
 
+# Plotting the results for production, reservoir volume and discharge for the two day schedule
+plt.figure(figsize=(12, 6))
+hours = T
+production = [value(model.x[t]) for t in model.T]
+plt.plot(hours, production)
+plt.xlabel('Hour')
+plt.ylabel('Production (MW)')
+plt.title('Production Schedule Over 48 Hours')
+plt.grid(True)
+plt.xticks(hours)
+# plt.show()
+plt.savefig('production_schedule_expected.png')
 
+plt.figure(figsize=(12, 6))
+reservoir_volume = [value(model.V[t]) for t in model.T]
+plt.plot(hours, reservoir_volume, color='orange')
+plt.xlabel('Hour')
+plt.ylabel('Reservoir Volume (Mm3)')
+plt.title('Reservoir Volume Over 48 Hours')
+plt.grid(True)
+plt.xticks(hours)
+# plt.show()
+plt.savefig('reservoir_volume_expected.png')
+
+# plt.figure(figsize=(12, 6))
+# discharge = [value(model.Q[t]) for t in model.T]
+# plt.plot(hours, discharge, marker='o', color='green')
+# plt.xlabel('Hour')
+# plt.ylabel('Discharge (m3/s)')
+# plt.title('Discharge Over 48 Hours')
+# plt.grid(True)
+# plt.xticks(hours)
+# plt.show()
