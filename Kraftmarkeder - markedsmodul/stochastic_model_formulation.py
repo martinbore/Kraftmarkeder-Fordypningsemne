@@ -65,6 +65,7 @@ model.V  = Var(model.T1, domain=NonNegativeReals, bounds=(0,Vmax))
 model.x_s = Var(model.T2, model.S, domain=NonNegativeReals, bounds=(0,Pmax))
 model.Q_s = Var(model.T2, model.S, domain=NonNegativeReals, bounds=(0,Qmax))
 model.V_s = Var(model.T2, model.S, domain=NonNegativeReals, bounds=(0,Vmax))
+model.spill = Var(model.T2, model.S, domain=NonNegativeReals, bounds=(0,Vmax))
 
 
 # Constraints
@@ -78,8 +79,8 @@ model.res_day1 = Constraint(model.T1, rule=reservoir_day1_rule)
 # Reservoir balance day 2
 def reservoir_day2_rule(m,t,s):
     if t == 25:
-        return m.V_s[t,s] == m.V[24] + m.M_conv*(m.I_s[t,s] - m.Q_s[t,s])
-    return m.V_s[t,s] == m.V_s[t-1,s] + m.M_conv*(m.I_s[t,s] - m.Q_s[t,s])
+        return m.V_s[t,s] == m.V[24] + m.M_conv*(m.I_s[t,s] - m.Q_s[t,s]) - m.spill[t,s]
+    return m.V_s[t,s] == m.V_s[t-1,s] + m.M_conv*(m.I_s[t,s] - m.Q_s[t,s]) - m.spill[t,s]
 model.res_day2 = Constraint(model.T2, model.S, rule=reservoir_day2_rule)
 
 # Link production and discharge (day 1)
@@ -110,8 +111,8 @@ if __name__ == "__main__":
     for t in model.T1:
         print(f"Hour {t}: Production = {value(model.x[t]):.2f} MW, Discharge = {value(model.Q[t]):.2f} m3/s, Volume = {value(model.V[t]):.2f} Mm3")
     for s in model.S:
-        print(f"\nScenario {s}:")
+        print(f"\nScenario {s+1}:")
         for t in model.T2:
-            print(f"Hour {t}: Production = {value(model.x_s[t,s]):.2f} MW, Discharge = {value(model.Q_s[t,s]):.2f} m3/s, Volume = {value(model.V_s[t,s]):.2f} Mm3")
+            print(f"Hour {t}: Production = {value(model.x_s[t,s]):.2f} MW, Discharge = {value(model.Q_s[t,s]):.2f} m3/s, Volume = {value(model.V_s[t,s]):.2f} Mm3, Spillage = {value(model.spill[t,s]):.2f}")
 
 
