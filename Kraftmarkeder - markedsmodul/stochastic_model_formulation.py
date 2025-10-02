@@ -116,7 +116,7 @@ if __name__ == "__main__":
     for s in model.S:
         print(f"\nScenario {s+1}:")
         for t in model.T2:
-            print(f"Hour {t}: Production = {value(model.x_s[t,s]):.2f} MW, Discharge = {value(model.Q_s[t,s]):.2f} m3/s, Volume = {value(model.V_s[t,s]):.2f} Mm3, Spillage = {value(model.spill[t,s]):.2f}")
+            print(f"Hour {t}: Production = {value(model.x_s[t,s]):.2f} MW, Discharge = {value(model.Q_s[t,s]):.2f} m3/s, Volume = {value(model.V_s[t,s]):.2f} Mm3, Spillage = {value(model.spill[t,s]):.2f} Mm3")
 
 
 # Plotting the results for production, reservoir volume and discharge for the two day schedule
