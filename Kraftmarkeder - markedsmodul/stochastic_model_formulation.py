@@ -105,8 +105,8 @@ model.Obj = Objective(rule=obj_rule, sense=maximize)
 
 # Solving the model
 if __name__ == "__main__":
-    # solver = SolverFactory("glpk")
-    solver = SolverFactory("gurobi")
+    solver = SolverFactory("glpk")
+    # solver = SolverFactory("gurobi")
     result = solver.solve(model, tee=True)
     print("\nObjective value:", value(model.Obj), "EUR")
     print("Reservoir at t=24:", value(model.V[24]), "Mm3")
