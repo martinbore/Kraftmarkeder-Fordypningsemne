@@ -144,10 +144,6 @@ def Benders_algo():
             master.alfa.unfix()
         # Solving the master problem and extracting the value to send to sub_problem:
         res_master = opt.solve(master, tee=False)
-        # check master solver result
-        if res_master.solver.termination_condition != TerminationCondition.optimal:
-            print(f"Master not optimal: {res_master.solver.status}, {res_master.solver.termination_condition}")
-            break
 
         V_24_k = value(master.V[24])
 
@@ -160,10 +156,6 @@ def Benders_algo():
             res_sub = opt.solve(sub, tee=False)
             # load solution into model variables
             sub.solutions.load_from(res_sub)
-            # check sub solver result
-            if res_sub.solver.termination_condition != TerminationCondition.optimal:
-                print(f"Subproblem s={s} not optimal: {res_sub.solver.status}, {res_sub.solver.termination_condition}")
-                break
             sub_obj = value(sub.obj)
             exp_sub_obj += pi*sub_obj
             cut_expr += pi*sub.dual[sub.res_day2[25]] * (master.V[24] - V_24_k)
@@ -177,7 +169,7 @@ def Benders_algo():
         first_stage_profit = sum(value(master.p[t]) * value(master.x[t]) for t in master.T1)
         second_stage_profit = exp_sub_obj
         UB = first_stage_profit + second_stage_profit
-        #print(f'LB: {LB}, UB: {UB}, Gap: {abs(UB-LB)}')
+        print(f'LB: {LB}, UB: {UB}, Gap: {abs(UB-LB)}')
 
 
         # Add Benders optimality cut: alfa <= phi_k + pi_k*(V24 - V24_k)
