@@ -36,7 +36,6 @@ WV_end = 52600.0
 
 
 # Solving the Problem with Benders decomposition using a single cut approach:
-
 def create_master():
     master = ConcreteModel()
     master.T1 = Set(initialize=T1)
@@ -56,7 +55,7 @@ def create_master():
     master.Q = Var(master.T1, domain=NonNegativeReals, bounds=(0,Qmax))
     master.V = Var(master.T1, domain=NonNegativeReals, bounds=(0,Vmax))
 
-    # Benders cut variable
+    # Defining alfa:
     master.alfa = Var(domain=Reals, initialize = 0)
 
     # Constraints
@@ -76,13 +75,13 @@ def create_master():
     # Objective function
     master.obj = Objective(rule=Obje_1, sense=maximize)
 
-    # prepare dual suffix once
+    # Dual suffix
     master.dual = Suffix(direction=Suffix.IMPORT)
 
     return master
 
 
-
+# Creating the subproblem:
 def create_sub(V_24, s):
     sub = ConcreteModel()
     sub.T2 = Set(initialize=T2)
@@ -176,11 +175,11 @@ def Benders_algo():
         phi_k = exp_sub_obj
         expr = master.alfa <= phi_k + cut_expr
         cname = f"cut_{it}"
-        setattr(master, cname, Constraint(expr=expr)) # Appends the cut to master
-        cuts.append(cname)
+        setattr(master, cname, Constraint(expr=expr)) # Defines cut
+        cuts.append(cname) # Appends cut
 
         if it >= max_it:
-            print("Reached max iterations, stopping")
+            print("Max amount of iterations has been reached")
             break
 
     print(f"Covergence after {it} iterations")
