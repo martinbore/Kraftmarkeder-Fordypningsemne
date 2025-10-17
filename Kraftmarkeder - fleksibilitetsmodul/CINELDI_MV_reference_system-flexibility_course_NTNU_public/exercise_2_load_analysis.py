@@ -135,8 +135,9 @@ plt.xlabel('Bus index')
 plt.ylabel('Voltage [p.u.]')
 plt.title('Voltage profile (strictly non-increasing)')
 plt.grid(True)
-plt.show()
 plt.savefig(os.path.join(output_dir, 'descending_voltage.png'), dpi=300, bbox_inches='tight')
+
+
 
 # Exercise 2 - Find how much the voltages decrease as the load demand in the area increases
 power_df = pd.DataFrame()
