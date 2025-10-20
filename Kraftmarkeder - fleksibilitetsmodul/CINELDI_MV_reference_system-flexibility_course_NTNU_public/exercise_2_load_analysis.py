@@ -190,13 +190,13 @@ for factor in scaling_factors:
 
     # Print table of load demands
     print(f"\nLoad demands for scaling factor {factor:.1f}:")
-    print(f"Bus 90: P = {net.load.loc[net.load['bus'] == 90, 'p_mw'].values[0]:.3f} MW, Q = {net.load.loc[net.load['bus'] == 90, 'q_mvar'].values[0]:.3f} MVar")
-    print(f"Bus 91: P = {net.load.loc[net.load['bus'] == 91, 'p_mw'].values[0]:.3f} MW, Q = {net.load.loc[net.load['bus'] == 91, 'q_mvar'].values[0]:.3f} MVar")
-    print(f"Bus 92: P = {net.load.loc[net.load['bus'] == 92, 'p_mw'].values[0]:.3f} MW, Q = {net.load.loc[net.load['bus'] == 92, 'q_mvar'].values[0]:.3f} MVar")
-    print(f"Bus 96: P = {net.load.loc[net.load['bus'] == 96, 'p_mw'].values[0]:.3f} MW, Q = {net.load.loc[net.load['bus'] == 96, 'q_mvar'].values[0]:.3f} MVar")
+    print(f"Bus 90: P = {net.load.loc[net.load['bus'] == 90, 'p_mw'].values[0]:.3f} MW., Q = {net.load.loc[net.load['bus'] == 90, 'q_mvar'].values[0]:.3f} MVar")
+    print(f"Bus 91: P = {net.load.loc[net.load['bus'] == 91, 'p_mw'].values[0]:.3f} MW., Q = {net.load.loc[net.load['bus'] == 91, 'q_mvar'].values[0]:.3f} MVar")
+    print(f"Bus 92: P = {net.load.loc[net.load['bus'] == 92, 'p_mw'].values[0]:.3f} MW., Q = {net.load.loc[net.load['bus'] == 92, 'q_mvar'].values[0]:.3f} MVar")
+    print(f"Bus 96: P = {net.load.loc[net.load['bus'] == 96, 'p_mw'].values[0]:.3f} MW., Q = {net.load.loc[net.load['bus'] == 96, 'q_mvar'].values[0]:.3f} MVar")
     aggregated_P_load = net.load.loc[net.load['bus'].isin(bus_i_subset), 'p_mw'].sum()
     aggregated_Q_load = net.load.loc[net.load['bus'].isin(bus_i_subset), 'q_mvar'].sum()
-    print(f"Aggregated load demand: P = {aggregated_P_load:.3f} MW, Q = {aggregated_Q_load:.3f} MVar")
+    print(f"Aggregated load demand: P = {aggregated_P_load:.3f} MW., Q = {aggregated_Q_load:.3f} MVar.")
 
     # Run power flow calculation
     pp.runpp(net, init='results', algorithm='bfsw')
@@ -216,7 +216,7 @@ plt.plot(load_demands, min_voltages, marker='o', linestyle='-')
 plt.plot(load_demands, 0.95*np.ones(len(load_demands)), 'k--', label='Voltage limit 0.95 p.u.')
 plt.xticks(np.arange(load_demands[0], load_demands[-1], 0.05))
 plt.legend()
-plt.xlabel("Aggregated Load demand [MW]")
+plt.xlabel("Aggregated load demand real power in [MW]")
 plt.ylabel("Minimum voltage [p.u.]")
 plt.title("Load vs. Minimum Voltage")
 # plt.show()
@@ -224,46 +224,6 @@ save_plot('Ex2_LoadVsMinimumVoltage.png')
 
 
 # Exercise 3 - Plot the aggregated load demand time series for the grid area
-aggregated_load_time_series = load_time_series_mapped[bus_i_subset]
-
-# Plot the load demand time series for the grid area:
-plt.figure(figsize=(10, 6))
-for bus in bus_i_subset:
-    plt.plot(
-        aggregated_load_time_series.index,
-        aggregated_load_time_series[bus],
-        label=f'Bus {bus}'
-    )
-
-plt.xlabel("Time [h]")
-plt.ylabel("Load Demand [MW]")
-plt.title("Load Demand Time Series")
-plt.legend()
-save_plot('exercise_3_load_time_series_individual_buses.png')
-
-
-# Plot the aggregated load demand time series for the grid area:
-# Aggregated load demand plot:
-plt.figure(figsize=(10, 6))
-plt.plot(
-    aggregated_load_time_series.index,
-    aggregated_load_time_series.sum(axis=1),
-    label='Aggregated Load Demand',
-    color='black'
-)   
-
-plt.xlabel("Time [h]")
-plt.ylabel("Aggregated Load Demand [MW]")
-plt.title("Aggregated Load Demand Time Series")
-# plt.legend()
-save_plot('exercise_3_aggregated_load_time_series.png')
-
-#
-#
-#Below made by Olav, new way to solve Excercise 3
-#
-#
-
 aggregated_load_time_series = load_time_series_mapped[bus_i_subset]
 
 # Stacked area plot (improves readability vs overlapping lines)
@@ -303,12 +263,6 @@ plt.legend()
 plt.grid(True, linestyle=':', alpha=0.5)
 plt.tight_layout()
 save_plot('exercise_3_aggregated_load_time_series_clean.png')
-
-#
-#
-#Above made by Olav, new way to solve Excercise 3
-#
-#
 
 
 # Exercise 4 - Find and explain the maximum of the aggregated load time series
@@ -459,8 +413,6 @@ plt.tight_layout()
 save_plot('exercise_13_comparison_duration_curves.png')
 
 # Task 14 - Compare utilization times and coincidence factors for different assumptions about the load
-# Calculate and compare in a table the utilization time and the coincidence factor for the loads
-# in the grid area for cases (a)-(c) in task 13.
 
 # Calculate utilization times and coincidence factors for all three scenarios
 def calculate_metrics(aggregated_load, individual_max_loads_sum):

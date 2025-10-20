@@ -123,3 +123,37 @@ print(f"Saved scaling table to: {out_csv}")
 
 # Above made by Olav, new way to solve Excercise 2
 
+# Exercise 3: Aggregated Load Demand Time Series Plotting
+aggregated_load_time_series = load_time_series_mapped[bus_i_subset]
+
+# Plot the load demand time series for the grid area:
+plt.figure(figsize=(10, 6))
+for bus in bus_i_subset:
+    plt.plot(
+        aggregated_load_time_series.index,
+        aggregated_load_time_series[bus],
+        label=f'Bus {bus}'
+    )
+
+plt.xlabel("Time [h]")
+plt.ylabel("Load Demand [MW]")
+plt.title("Load Demand Time Series")
+plt.legend()
+save_plot('exercise_3_load_time_series_individual_buses.png')
+
+
+# Plot the aggregated load demand time series for the grid area:
+# Aggregated load demand plot:
+plt.figure(figsize=(10, 6))
+plt.plot(
+    aggregated_load_time_series.index,
+    aggregated_load_time_series.sum(axis=1),
+    label='Aggregated Load Demand',
+    color='black'
+)   
+
+plt.xlabel("Time [h]")
+plt.ylabel("Aggregated Load Demand [MW]")
+plt.title("Aggregated Load Demand Time Series")
+# plt.legend()
+save_plot('exercise_3_aggregated_load_time_series.png')
