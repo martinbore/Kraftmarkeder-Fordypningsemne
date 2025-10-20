@@ -156,19 +156,23 @@ for s in S:
 plt.xlabel('Hour')
 plt.ylabel('Production (MW)')
 plt.title('Production over Time for Different Inflow Scenarios')
+plt.grid(True)
+plt.xticks(T)
 plt.legend()
-# plt.show()
+plt.show()
 plt.savefig('production_scenarios.png')
 
 plt.figure(figsize=(12, 6))
 for s in S:
     df = pd.read_csv(f'scenario_{s}_results.csv')
-    plt.plot(df['Hour'], df['Volume_Mm3'], label=f'Scenario {s+1}')
+    plt.plot(T, df['Volume_Mm3'], label=f'Scenario {s+1}')
 plt.xlabel('Hour')
 plt.ylabel('Reservoir Volume (Mm3)')
 plt.title('Reservoir Volume over Time for Different Inflow Scenarios')
+plt.grid(True)
+plt.xticks(T)
 plt.legend()
-# plt.show()
+plt.show()
 plt.savefig('reservoir_volume_scenarios.png')
 
 
