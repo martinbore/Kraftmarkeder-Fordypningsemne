@@ -131,6 +131,7 @@ for i in range(1, len(bus_indices)):
 # Plot the strictly non-increasing voltage profile
 plt.figure(figsize=(12, 6))
 plt.plot(monotone_buses, monotone_voltages, 'r-')
+plt.plot(monotone_buses, 0.95*np.ones(len(monotone_buses)), 'k--')  # Markers for clarity
 plt.xlabel('Bus index')
 plt.ylabel('Voltage [p.u.]')
 plt.title('Voltage profile (strictly non-increasing)')
