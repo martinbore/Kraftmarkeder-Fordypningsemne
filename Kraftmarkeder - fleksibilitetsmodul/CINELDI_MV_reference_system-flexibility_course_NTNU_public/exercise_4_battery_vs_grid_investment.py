@@ -26,7 +26,8 @@ import seaborn as sns
 
 # Location of (processed) data set for CINELDI MV reference system
 # (to be replaced by your own local data folder)
-path_data_set         = 'C:/Users/ivespe/Data_sets/CINELDI_MV_reference_system/'
+# path_data_set         = 'C:/Users/ivespe/Data_sets/CINELDI_MV_reference_system/'
+path_data_set = '/Users/olavberger/Kraftmarkeder2 Fordypningsemne_ToUse/Kraftmarkeder-Fordypningsemne/Kraftmarkeder - fleksibilitetsmodul/7703070/'
 
 filename_load_data_fullpath = os.path.join(path_data_set,'load_data_CINELDI_MV_reference_system.csv')
 filename_load_mapping_fullpath = os.path.join(path_data_set,'mapping_loads_to_CINELDI_MV_reference_grid.csv')
@@ -85,3 +86,93 @@ load_time_series_subset = load_time_series_mapped[bus_i_subset] * scaling_factor
 load_time_series_subset_aggr = load_time_series_subset.sum(axis=1)
 
 P_max = load_time_series_subset_aggr.max()
+
+#### TASK 2 ####
+
+def peak_load_demand_development(P_max, factor, years):
+   Peak_load_values_each_year = []
+   for year in range(years):
+         Peak_load_values_each_year.append(P_max * (1 + factor) ** year)
+   return Peak_load_values_each_year
+
+# Plot peak load development over 10 years
+years = 10
+P_max_start = 3.9  # MW
+growth_factor = 0.03  # 3% annual growth
+
+# Calculate peak load values for each year
+peak_loads = peak_load_demand_development(P_max_start, growth_factor, years)
+year_labels = list(range(years))
+
+# Create the step plot
+plt.figure(figsize=(10, 6))
+plt.step(year_labels, peak_loads, where='post', linewidth=2, marker='o', markersize=6)
+
+# Add horizontal red dashed line at 4 MW limit
+plt.axhline(y=4, color='red', linestyle='--', linewidth=2, label='4 MW Limit')
+
+plt.xlabel('Year')
+plt.ylabel('Peak Load (MW)')
+plt.title('Peak Load Development over 10 Years (3% Annual Growth)')
+plt.grid(True, alpha=0.3)
+plt.xticks(range(years + 1))  # Show x-axis from 0 to 10
+plt.xlim(-0.5, years)  # Set x-axis limits to show year 10
+
+# Add value labels on each point
+for i, value in enumerate(peak_loads):
+    plt.annotate(f'{value:.2f}', (i, value), textcoords="offset points", 
+                xytext=(0,10), ha='center', fontsize=9)
+
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Print the values
+print("Peak load development over 10 years:")
+for year, load in enumerate(peak_loads):
+    print(f"Year {year}: {load:.2f} MW")
+
+
+
+#### TASK 6 ####
+
+# Reuse the same function from Task 2
+# (function is already defined above)
+
+# Plot peak load development over 10 years with battery insertion after Year 1
+years = 10
+P_max_start = 3.9  # MW
+growth_factor = 0.03  # 3% annual growth
+
+# Calculate peak load values for each year
+peak_loads = peak_load_demand_development(P_max_start, growth_factor, years)
+year_labels = list(range(years))
+
+# Create the step plot
+plt.figure(figsize=(10, 6))
+plt.step(year_labels, peak_loads, where='post', linewidth=2, marker='o', markersize=6, label='Peak Load')
+
+# Create dynamic limit line with clear jump at year 1
+limit_years = [0, 1, 1, years]  # Include year 1 twice for the vertical jump
+limit_values = [4, 4, 5, 5]     # 4MW until year 1, then jump to 5MW at year 1
+plt.plot(limit_years, limit_values, color='red', linestyle='--', linewidth=2, label='Grid Limit (4MW → 5MW with battery)')
+
+# Add vertical line to show when battery is inserted
+plt.axvline(x=1, color='green', linestyle=':', linewidth=2, alpha=0.7, label='Battery Insertion')
+
+plt.xlabel('Year')
+plt.ylabel('Peak Load (MW)')
+plt.title('Peak Load Development with Battery Insertion (3% Annual Growth)')
+plt.grid(True, alpha=0.3)
+plt.xticks(range(years + 1))  # Show x-axis from 0 to 10
+plt.xlim(-0.5, years)  # Set x-axis limits to show year 10
+
+# Add value labels on each point
+for i, value in enumerate(peak_loads):
+    plt.annotate(f'{value:.2f}', (i, value), textcoords="offset points", 
+                xytext=(0,10), ha='center', fontsize=9)
+
+plt.legend()
+plt.tight_layout()
+plt.show()
+

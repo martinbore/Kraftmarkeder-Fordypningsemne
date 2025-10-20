@@ -31,8 +31,8 @@ import numpy as np
 # (to be replaced by your own local data folder)
 #path_data_set         = r'C:\TET4565 Kraftmarkeder\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - fleksibilitetsmodul\7703070\CINELDI_MV_reference_system_v_2023-03-06' #Sigurd
 # path_data_set         = r'/Users/olavberger/Kraftmarkeder2 Fordypningsemne_ToUse/Kraftmarkeder-Fordypningsemne/Kraftmarkeder - fleksibilitetsmodul/7703070/CINELDI_MV_reference_system_v_2023-03-06' #Olav
-# path_data_set = r'C:\Users\marti\Documents\Kraftmarkeder Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - fleksibilitetsmodul\7703070\CINELDI_MV_reference_system_v_2023-03-06' #Martin PC
-path_data_set = r'\\sambaad.stud.ntnu.no\martbore\Documents\Kraftmarkeder2\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - fleksibilitetsmodul\7703070\CINELDI_MV_reference_system_v_2023-03-06' #Martin Linux
+path_data_set = r'C:\Users\marti\Documents\Kraftmarkeder Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - Fleksibilitetsmodul\7703070\CINELDI_MV_reference_system_v_2023-03-06' #Martin PC
+# path_data_set = r'\\sambaad.stud.ntnu.no\martbore\Documents\Kraftmarkeder2\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - fleksibilitetsmodul\7703070\CINELDI_MV_reference_system_v_2023-03-06' #Martin Linux
 
 filename_load_data_fullpath = os.path.join(path_data_set,'load_data_CINELDI_MV_reference_system.csv')
 filename_load_mapping_fullpath = os.path.join(path_data_set,'mapping_loads_to_CINELDI_MV_reference_grid.csv')
@@ -109,6 +109,36 @@ def save_plot(filename, show_plot=False):
 # pp.runpp(net,init='results',algorithm='bfsw')
 # pp_plotting.pf_res_plotly(net)
 # print('Minimum voltage in the system: ' + str(net.res_bus['vm_pu'].min()) + ' p.u.')
+
+## Plot the voltage profile in the grid avoiding branches for better visibility. To do this we plot vm_pu vs bus index as long as the voltage 
+## drops monotonically along the radial. 
+# Extract bus indices and voltages
+bus_indices = net.res_bus.index.tolist()
+voltages = net.res_bus['vm_pu'].values
+
+# Build a sequence of buses where the voltage strictly decreases or stays constant
+monotone_buses = [bus_indices[0]]
+monotone_voltages = [voltages[0]]
+
+for i in range(1, len(bus_indices)):
+    previous_voltage = monotone_voltages[-1]
+    current_voltage = voltages[i]
+    if current_voltage <= previous_voltage:
+        monotone_buses.append(bus_indices[i])
+        monotone_voltages.append(current_voltage)
+    # If the voltage increases, skip the point (do not add to the plot)
+
+# Plot the strictly non-increasing voltage profile
+plt.figure(figsize=(12, 6))
+plt.plot(monotone_buses, monotone_voltages, 'r-')
+plt.plot(monotone_buses, 0.95*np.ones(len(monotone_buses)), 'k--')  # Markers for clarity
+plt.xlabel('Bus index')
+plt.ylabel('Voltage [p.u.]')
+plt.title('Voltage profile (strictly non-increasing)')
+plt.grid(True)
+plt.savefig(os.path.join(output_dir, 'descending_voltage.png'), dpi=300, bbox_inches='tight')
+
+
 
 # Exercise 2 - Find how much the voltages decrease as the load demand in the area increases
 power_df = pd.DataFrame()
