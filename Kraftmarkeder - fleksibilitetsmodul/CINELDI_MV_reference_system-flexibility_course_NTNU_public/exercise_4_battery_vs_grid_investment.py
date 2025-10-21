@@ -27,7 +27,8 @@ import seaborn as sns
 # Location of (processed) data set for CINELDI MV reference system
 # (to be replaced by your own local data folder)
 # path_data_set         = 'C:/Users/ivespe/Data_sets/CINELDI_MV_reference_system/'
-path_data_set = '/Users/olavberger/Kraftmarkeder2 Fordypningsemne_ToUse/Kraftmarkeder-Fordypningsemne/Kraftmarkeder - fleksibilitetsmodul/7703070/'
+# path_data_set = '/Users/olavberger/Kraftmarkeder2 Fordypningsemne_ToUse/Kraftmarkeder-Fordypningsemne/Kraftmarkeder - fleksibilitetsmodul/7703070/'
+path_data_set = r'C:/Users/marti/Documents/Kraftmarkeder Fordypningsemne/Kraftmarkeder-Fordypningsemne/Kraftmarkeder - fleksibilitetsmodul/7703070/'
 
 filename_load_data_fullpath = os.path.join(path_data_set,'load_data_CINELDI_MV_reference_system.csv')
 filename_load_mapping_fullpath = os.path.join(path_data_set,'mapping_loads_to_CINELDI_MV_reference_grid.csv')
@@ -77,6 +78,10 @@ profiles_mapped = load_profiles.map_rel_load_profiles(filename_load_mapping_full
 # maximum load value for each of the load points in the grid data set (in units MW); the column index is the bus number
 # (1-indexed) and the row index is the hour of the year (0-indexed)
 load_time_series_mapped = profiles_mapped.mul(net.load['p_mw'])
+# print("Load time series data (first 5 rows):")
+# print(load_time_series_mapped)
+# print(len(load_time_series_mapped))
+
 
 
 # %% Aggregate the load demand in the area
@@ -84,6 +89,7 @@ load_time_series_mapped = profiles_mapped.mul(net.load['p_mw'])
 # Aggregated load time series for the subset of load buses
 load_time_series_subset = load_time_series_mapped[bus_i_subset] * scaling_factor
 load_time_series_subset_aggr = load_time_series_subset.sum(axis=1)
+
 
 P_max = load_time_series_subset_aggr.max()
 
@@ -176,3 +182,54 @@ plt.legend()
 plt.tight_layout()
 plt.show()
 
+# Task 7 - Estimate the annual operational costs of using battery for congestion management in the grid area
+
+for year in range(years):
+    load = load_time_series_subset_aggr * (1 + growth_factor) ** year
+    max_load = 4.0  # MW
+    excess_load = load - max_load
+    excess_load[excess_load < 0] = 0  # Only consider positive excess load
+    cost_per_mwh = 2000  # NOK/MWh
+    annual_cost = excess_load.sum() * cost_per_mwh * 20
+    print("-----")
+    print(f"Excess load profile sum for year {year}: {20*excess_load.sum():3f} MWh")
+    print(f"Estimated annual operational cost for year {year}: {annual_cost:.0f} NOK")
+
+
+# Task 8 - Estimate the annual expected energy not supplied for grid planning alternative A
+lambda_perm = data_comp_rel.loc['Overhead line (1_22 kV)', 'lambda_perm'] # Failure rate for lines (failures per 100 km/year)
+line_length = 20 # km
+expected_failures_per_year = (lambda_perm / 100) * line_length
+duration_per_failure = data_comp_rel.loc['Overhead line (1_22 kV)', 'r_perm']  # hours
+yearly_downtime = expected_failures_per_year * duration_per_failure
+avg_load = 1.841 # MW (mean load in the grid area)
+
+for year in range(years):
+    load = avg_load * (1 + growth_factor) ** year
+    ens = yearly_downtime * load  # MWh
+    print("-----")
+    print(f"Estimated annual ENS for year {year} : {ens:.2f} MWh")
+
+# # Task 9 - Estimate the annual costs of energy not supplied for grid planning alternative A
+c_ens = 0
+for bus in bus_i_subset:
+    c_ens += data_load_point.loc[bus, 'c_NOK_per_kWh_4h']  # NOK/kWh
+    
+c_ens = c_ens/len(bus_i_subset)  # Average cost of ENS across the buses in the area
+# for year in range(years):
+#     load = avg_load * (1 + growth_factor) ** year
+#     ens = yearly_downtime * load  # MWh
+#     annual_cost_ens = ens * 1000 * c_ens  # NOK
+#     print("-----")
+#     print(f"Estimated annual cost of ENS in year {year} : {annual_cost_ens:.0f} NOK")
+
+# Task 10 - Estimate the annual costs of energy not supplied for grid planning alternative B (with battery)
+for year in range(years):
+    load = avg_load * (1 + growth_factor) ** year 
+    ens_load = yearly_downtime * load  # MWh, assuming battery can cover 2 MW of load whenever failure occurs
+    se_battery = expected_failures_per_year * 2  # MWh, energy supplied by battery during failures
+    ens = max(0, ens_load - se_battery)  # MWh
+    annual_cost_ens = ens * 1000 * c_ens  # NOK
+    print("-----")
+    print(f"Estimated annual ENS (with battery) in year {year}: {ens:.2f} MWh")
+    print(f"Estimated annual cost of ENS with battery in year {year} : {annual_cost_ens:.0f} NOK")
