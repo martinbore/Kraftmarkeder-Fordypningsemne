@@ -77,13 +77,14 @@ def soc_constraint(m,h):
 
 model.objective = en.Objective(rule = objective_rule, sense = en.minimize)
 model.soc_con = en.Constraint(Hours, rule = soc_constraint)
-opt = SolverFactory('glpk')
+opt = SolverFactory('gurobi')
 start = time.time()
 results = opt.solve(model)
 print("Solver status:", results.solver.status)
 print("Termination condition:", results.solver.termination_condition)
 end = time.time()
 print('Solving time (seconds): ', end - start)
+print('Objective value: ', en.value(model.objective))
 print("Printing the schedules:")
 for h in Hours:
     print('Hour: ', h, ' Charge (kW): ', en.value(model.x_c[h]), ' Discharge (kW): ', en.value(model.x_d[h]), ' State of Charge (kWh): ', en.value(model.soc[h]))
