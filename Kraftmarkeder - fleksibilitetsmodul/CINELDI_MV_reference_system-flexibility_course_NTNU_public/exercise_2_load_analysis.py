@@ -141,173 +141,89 @@ plt.savefig(os.path.join(output_dir, 'descending_voltage.png'), dpi=300, bbox_in
 
 
 # Exercise 2 - Find how much the voltages decrease as the load demand in the area increases
-power_df = pd.DataFrame()
-Demand_bus_90 = net.load[net.load['bus'] == 90]['p_mw'].values
-Demand_bus_91 = net.load[net.load['bus'] == 91]['p_mw'].values
-Demand_bus_92 = net.load[net.load['bus'] == 92]['p_mw'].values
-Demand_bus_96 = net.load[net.load['bus'] == 96]['p_mw'].values
+# Find how much the voltages decrease as the load demand in the area increases 
+# For later reference, make a table showing the load demand values of all four existing load 
+# points in the area (on bus 90, 91, 92 and 96) and their sum (i.e., the aggregated load demand 
+# in the area). Multiply each load proportionally by a scaling factor and run power flow 
+# calculations again for different values of this scaling factor in the range 1 to 2. Plot the lowest 
+# voltage value in the area as a function of the aggregated load demand in the area, compare 
+# with the voltage limit of 0.95 p.u., and explain what this tells about the grid capacity in the 
+# area. 
 
+## Martin suggestion to solve Exercise 2 ##
+# 1. Store original load values, both real and reactive, for buses 90, 91, 92, and 96
+# 2. Loop over scaling factors from 1 to 2 in steps of 0.2
+# 3. In each iteration, scale the load values for the four buses
+# 4. Print a table showing the load demand values of all four existing load points in the area and their sum
+    # The table should have the following format:
 
-Scaling_factors = np.arange(1,2.25,0.25) 
+    # Bus number / Scaling factor | 1.0 | 1.2 | 1.4 | 1.6 | 1.8 | 2.0
+    # 90                          |P90|Q90|
+    # 91                          |P91|Q91|
+    # 92                          |P92|Q92|
+    # 96                          |P96|Q96|
+    # Aggregated load demand      |SumP|SumQ|
+# 5. Run power flow calculation to find voltages
+# 6. Find the minimum voltage in the system and the corresponding bus
+# 7. Store the aggregated load demand in the area and the minimum voltage for plotting
+
+P_demand_bus_90_original = net.load.loc[net.load['bus'] == 90, 'p_mw'].values[0]
+Q_demand_bus_90_original = net.load.loc[net.load['bus'] == 90, 'q_mvar'].values[0]
+P_demand_bus_91_original = net.load.loc[net.load['bus'] == 91, 'p_mw'].values[0]
+Q_demand_bus_91_original = net.load.loc[net.load['bus'] == 91, 'q_mvar'].values[0]
+P_demand_bus_92_original = net.load.loc[net.load['bus'] == 92, 'p_mw'].values[0]
+Q_demand_bus_92_original = net.load.loc[net.load['bus'] == 92, 'q_mvar'].values[0]
+P_demand_bus_96_original = net.load.loc[net.load['bus'] == 96, 'p_mw'].values[0]
+Q_demand_bus_96_original = net.load.loc[net.load['bus'] == 96, 'q_mvar'].values[0]
+
+scaling_factors = np.arange(1, 2.01, 0.2)
 plotting_dict = {}
-for factor in Scaling_factors:
-    net.load.loc[net.load['bus'] == 90, 'p_mw'] = Demand_bus_90 * factor
-    net.load.loc[net.load['bus'] == 91, 'p_mw'] = Demand_bus_91 * factor
-    net.load.loc[net.load['bus'] == 92, 'p_mw'] = Demand_bus_92 * factor
-    net.load.loc[net.load['bus'] == 96, 'p_mw'] = Demand_bus_96 * factor
-    pp.runpp(net,init='results',algorithm='bfsw')
+for factor in scaling_factors:
+    net.load.loc[net.load['bus'] == 90, 'p_mw'] = P_demand_bus_90_original * factor
+    net.load.loc[net.load['bus'] == 90, 'q_mvar'] = Q_demand_bus_90_original * factor
+    net.load.loc[net.load['bus'] == 91, 'p_mw'] = P_demand_bus_91_original * factor
+    net.load.loc[net.load['bus'] == 91, 'q_mvar'] = Q_demand_bus_91_original * factor
+    net.load.loc[net.load['bus'] == 92, 'p_mw'] = P_demand_bus_92_original * factor
+    net.load.loc[net.load['bus'] == 92, 'q_mvar'] = Q_demand_bus_92_original * factor
+    net.load.loc[net.load['bus'] == 96, 'p_mw'] = P_demand_bus_96_original * factor
+    net.load.loc[net.load['bus'] == 96, 'q_mvar'] = Q_demand_bus_96_original * factor
+
+    # Print table of load demands
+    print(f"\nLoad demands for scaling factor {factor:.1f}:")
+    print(f"Bus 90: P = {net.load.loc[net.load['bus'] == 90, 'p_mw'].values[0]:.3f} MW., Q = {net.load.loc[net.load['bus'] == 90, 'q_mvar'].values[0]:.3f} MVar")
+    print(f"Bus 91: P = {net.load.loc[net.load['bus'] == 91, 'p_mw'].values[0]:.3f} MW., Q = {net.load.loc[net.load['bus'] == 91, 'q_mvar'].values[0]:.3f} MVar")
+    print(f"Bus 92: P = {net.load.loc[net.load['bus'] == 92, 'p_mw'].values[0]:.3f} MW., Q = {net.load.loc[net.load['bus'] == 92, 'q_mvar'].values[0]:.3f} MVar")
+    print(f"Bus 96: P = {net.load.loc[net.load['bus'] == 96, 'p_mw'].values[0]:.3f} MW., Q = {net.load.loc[net.load['bus'] == 96, 'q_mvar'].values[0]:.3f} MVar")
+    aggregated_P_load = net.load.loc[net.load['bus'].isin(bus_i_subset), 'p_mw'].sum()
+    aggregated_Q_load = net.load.loc[net.load['bus'].isin(bus_i_subset), 'q_mvar'].sum()
+    print(f"Aggregated load demand: P = {aggregated_P_load:.3f} MW., Q = {aggregated_Q_load:.3f} MVar.")
+
+    # Run power flow calculation
+    pp.runpp(net, init='results', algorithm='bfsw')
     min_voltage = net.res_bus['vm_pu'].min()
     bus_min_voltage = net.res_bus['vm_pu'].idxmin()
     lowest = [bus_min_voltage]
     load_demand_low = net.load.loc[net.load['bus'].isin(lowest), 'p_mw'].sum()
-    # Hent last kun for bussene du endrer
     aggregated_load_demand = net.load.loc[net.load['bus'].isin(bus_i_subset), 'p_mw'].sum()
     plotting_dict[factor] = (bus_min_voltage, min_voltage, load_demand_low, aggregated_load_demand)
-
 min_voltages = []
 load_demands = []
 for key in plotting_dict:
     min_voltages.append(plotting_dict[key][1])
-    load_demands.append(plotting_dict[key][3])  
-
+    load_demands.append(plotting_dict[key][3])
+plt.figure(figsize=(10,6))
 plt.plot(load_demands, min_voltages, marker='o', linestyle='-')
-
-plt.xlabel("Aggregated Load demand [MW]")
+plt.plot(load_demands, 0.95*np.ones(len(load_demands)), 'k--', label='Voltage limit 0.95 p.u.')
+plt.xticks(np.arange(load_demands[0], load_demands[-1], 0.05))
+plt.legend()
+plt.xlabel("Aggregated load demand real power in [MW]")
 plt.ylabel("Minimum voltage [p.u.]")
 plt.title("Load vs. Minimum Voltage")
-save_plot('exercise_2_load_vs_voltage.png')
-
-#
-#
-#Made by Olav, new way to solve Excercise 2
-#
-#
-power_df = pd.DataFrame()
-Demand_bus_90 = net.load[net.load['bus'] == 90]['p_mw'].values
-Demand_bus_91 = net.load[net.load['bus'] == 91]['p_mw'].values
-Demand_bus_92 = net.load[net.load['bus'] == 92]['p_mw'].values
-Demand_bus_96 = net.load[net.load['bus'] == 96]['p_mw'].values
-
-# Keep a snapshot of original loads for the selected buses
-original_loads = {
-    90: float(Demand_bus_90[0]) if len(Demand_bus_90) else 0.0,
-    91: float(Demand_bus_91[0]) if len(Demand_bus_91) else 0.0,
-    92: float(Demand_bus_92[0]) if len(Demand_bus_92) else 0.0,
-    96: float(Demand_bus_96[0]) if len(Demand_bus_96) else 0.0,
-}
-
-
-Scaling_factors = np.arange(1,2.25,0.25) 
-plotting_dict = {}
-for factor in Scaling_factors:
-    net.load.loc[net.load['bus'] == 90, 'p_mw'] = Demand_bus_90 * factor
-    net.load.loc[net.load['bus'] == 91, 'p_mw'] = Demand_bus_91 * factor
-    net.load.loc[net.load['bus'] == 92, 'p_mw'] = Demand_bus_92 * factor
-    net.load.loc[net.load['bus'] == 96, 'p_mw'] = Demand_bus_96 * factor
-    pp.runpp(net,init='results',algorithm='bfsw')
-    min_voltage = net.res_bus['vm_pu'].min()
-    bus_min_voltage = net.res_bus['vm_pu'].idxmin()
-    lowest = [bus_min_voltage]
-    load_demand_low = net.load.loc[net.load['bus'].isin(lowest), 'p_mw'].sum()
-    # Hent last kun for bussene du endrer
-    aggregated_load_demand = net.load.loc[net.load['bus'].isin(bus_i_subset), 'p_mw'].sum()
-    plotting_dict[factor] = (bus_min_voltage, min_voltage, load_demand_low, aggregated_load_demand)
-
-min_voltages = []
-load_demands = []
-for key in plotting_dict:
-    min_voltages.append(plotting_dict[key][1])
-    load_demands.append(plotting_dict[key][3])  
-
-plt.plot(load_demands, min_voltages, marker='o', linestyle='-')
-
-plt.xlabel("Aggregated Load demand [MW]")
-plt.ylabel("Minimum voltage [p.u.]")
-plt.title("Load vs. Minimum Voltage")
-save_plot('exercise_2_load_vs_voltage_olav.png')
-
-# Restore original loads after the sweep to avoid affecting later calculations
-for bus, p in original_loads.items():
-    net.load.loc[net.load['bus'] == bus, 'p_mw'] = p
-
-# Create compact scaling table for the selected buses (like the sample table)
-scaling_factors_table = [1.0, 1.2, 1.4, 1.6, 1.8, 2.0]
-buses_for_table = [90, 91, 92, 96]
-
-# Use per-bus original Pd values from res_bus to avoid side effects and duplication
-base_loads = {bus: float(net.res_bus.loc[bus, 'p_mw']) for bus in buses_for_table}
-
-table_cols = [str(sf) for sf in scaling_factors_table]
-row_labels = [f"Bus {bus}" for bus in buses_for_table] + ["Aggregated load in system [MW]"]
-scaling_table = pd.DataFrame(index=row_labels, columns=table_cols, dtype=float)
-
-for sf in scaling_factors_table:
-    # Per-bus scaled values
-    for bus in buses_for_table:
-        scaling_table.loc[f"Bus {bus}", str(sf)] = base_loads[bus] * sf
-    # Aggregated over the specified buses
-    scaling_table.loc["Aggregated load in system [MW]", str(sf)] = sum(base_loads.values()) * sf
-
-# Round for neat display
-scaling_table = scaling_table.round(4)
-
-print("\nLoad demand values [MW] of existing load points:")
-print(scaling_table.to_string())
-
-# Save to CSV next to this script
-script_dir = os.path.dirname(os.path.abspath(__file__))
-out_csv = os.path.join(script_dir, "ex2_scaling_table.csv")
-scaling_table.to_csv(out_csv)
-print(f"Saved scaling table to: {out_csv}")
-
-#
-#
-#Above made by Olav, new way to solve Excercise 2
-#
-#
+# plt.show()
+save_plot('Ex2_LoadVsMinimumVoltage.png')
 
 
 # Exercise 3 - Plot the aggregated load demand time series for the grid area
-aggregated_load_time_series = load_time_series_mapped[bus_i_subset]
-
-# Plot the load demand time series for the grid area:
-plt.figure(figsize=(10, 6))
-for bus in bus_i_subset:
-    plt.plot(
-        aggregated_load_time_series.index,
-        aggregated_load_time_series[bus],
-        label=f'Bus {bus}'
-    )
-
-plt.xlabel("Time [h]")
-plt.ylabel("Load Demand [MW]")
-plt.title("Load Demand Time Series")
-plt.legend()
-save_plot('exercise_3_load_time_series_individual_buses.png')
-
-
-# Plot the aggregated load demand time series for the grid area:
-# Aggregated load demand plot:
-plt.figure(figsize=(10, 6))
-plt.plot(
-    aggregated_load_time_series.index,
-    aggregated_load_time_series.sum(axis=1),
-    label='Aggregated Load Demand',
-    color='black'
-)   
-
-plt.xlabel("Time [h]")
-plt.ylabel("Aggregated Load Demand [MW]")
-plt.title("Aggregated Load Demand Time Series")
-# plt.legend()
-save_plot('exercise_3_aggregated_load_time_series.png')
-
-#
-#
-#Below made by Olav, new way to solve Excercise 3
-#
-#
-
 aggregated_load_time_series = load_time_series_mapped[bus_i_subset]
 
 # Stacked area plot (improves readability vs overlapping lines)
@@ -347,12 +263,6 @@ plt.legend()
 plt.grid(True, linestyle=':', alpha=0.5)
 plt.tight_layout()
 save_plot('exercise_3_aggregated_load_time_series_clean.png')
-
-#
-#
-#Above made by Olav, new way to solve Excercise 3
-#
-#
 
 
 # Exercise 4 - Find and explain the maximum of the aggregated load time series
@@ -503,8 +413,6 @@ plt.tight_layout()
 save_plot('exercise_13_comparison_duration_curves.png')
 
 # Task 14 - Compare utilization times and coincidence factors for different assumptions about the load
-# Calculate and compare in a table the utilization time and the coincidence factor for the loads
-# in the grid area for cases (a)-(c) in task 13.
 
 # Calculate utilization times and coincidence factors for all three scenarios
 def calculate_metrics(aggregated_load, individual_max_loads_sum):

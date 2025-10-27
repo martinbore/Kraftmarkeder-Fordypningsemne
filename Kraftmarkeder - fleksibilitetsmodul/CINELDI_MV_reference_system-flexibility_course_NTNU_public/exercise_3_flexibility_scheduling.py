@@ -65,7 +65,7 @@ def objective_rule(m):
     return sum((dict_Prices[h] * (dict_Base_load[h] - dict_PV_prod[h] + m.x_c[h] - m.x_d[h])) for h in Hours)
 
 # The constraints:
-print(Hours)
+# print(Hours)
 def soc_constraint(m,h):
     if (h == min(Hours)):
         return m.soc[h] == (m.x_c[h] * charging_efficiency - m.x_d[h] / discharging_efficiency)
@@ -78,13 +78,14 @@ def soc_constraint(m,h):
 
 model.objective = en.Objective(rule = objective_rule, sense = en.minimize)
 model.soc_con = en.Constraint(Hours, rule = soc_constraint)
-opt = SolverFactory('glpk')
+opt = SolverFactory('gurobi')
 start = time.time()
 results = opt.solve(model)
 print("Solver status:", results.solver.status)
 print("Termination condition:", results.solver.termination_condition)
 end = time.time()
 print('Solving time (seconds): ', end - start)
+print('Objective value: ', en.value(model.objective))
 print("Printing the schedules:")
 for h in Hours:
     print('Hour: ', h, ' Charge (kW): ', en.value(model.x_c[h]), ' Discharge (kW): ', en.value(model.x_d[h]), ' State of Charge (kWh): ', en.value(model.soc[h]))
@@ -178,8 +179,9 @@ model_new.soc = Var(Hours, within = en.NonNegativeReals, bounds = (0,capacity))
 model_new.power_limit_con = en.Constraint(Hours, rule=power_limit_constraint)
 model_new.objective = en.Objective(rule = objective_rule, sense = en.minimize)
 model_new.soc_con = en.Constraint(Hours, rule = soc_constraint)
-opt = SolverFactory('glpk')
+opt = SolverFactory('gurobi')
 results = opt.solve(model_new)
+print("Objective value with power limit: ", en.value(model_new.objective))
 print("Solver status:", results.solver.status)
 for h in Hours:
     print('Hour: ', h, ' Charge (kW): ', en.value(model_new.x_c[h]), ' Discharge (kW): ', en.value(model_new.x_d[h]), ' State of Charge (kWh): ', en.value(model_new.soc[h]))
