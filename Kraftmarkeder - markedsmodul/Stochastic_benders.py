@@ -143,8 +143,7 @@ def Benders_algo():
         else:
             master.alfa.unfix()
         # Solving the master problem and extracting the value to send to sub_problem:
-        res_master = opt.solve(master, tee=False)
-
+        opt.solve(master, tee=False)
         V_24_k = value(master.V[24])
 
         # Creating and solving each subproblem separately:
