@@ -35,6 +35,7 @@ testData = pd.read_csv('./profile_input.csv')
 
 # Convert the various timeseries/profiles to numpy arrays
 Hours = testData['Hours'].values
+print(Hours)
 Base_load = testData['Base_load'].values
 PV_prod = testData['PV_prod'].values
 Price = testData['Price'].values

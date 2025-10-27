@@ -36,6 +36,7 @@ WV_end = 52600.0
 
 
 # Solving the Problem with Benders decomposition using a single cut approach:
+# Creating the master problem:
 def create_master():
     master = ConcreteModel()
     master.T1 = Set(initialize=T1)
@@ -118,7 +119,7 @@ def create_sub(V_24, s):
     # Objective function
     sub.obj = Objective(rule=Obje_2, sense=maximize)
 
-    # prepare dual suffix once for this submodel
+    # Dual
     sub.dual = Suffix(direction=Suffix.IMPORT)
 
     return sub
@@ -150,6 +151,7 @@ def Benders_algo():
         exp_sub_obj = 0
         cut_expr = 0
         exp_dual = 0
+        # Solving each scenario and weighting the corresponding cuts:
         for s in S:
             sub = create_sub(V_24_k, s)
             res_sub = opt.solve(sub, tee=False)
@@ -159,11 +161,10 @@ def Benders_algo():
             exp_sub_obj += pi*sub_obj
             cut_expr += pi*sub.dual[sub.res_day2[25]] * (master.V[24] - V_24_k)
             exp_dual += pi*sub.dual[sub.res_day2[25]]
-            print(res_sub.solver.termination_condition)
             #print(f"Scenario {s} objective: {sub_obj}")
 
 
-        # Compute bounds: LB is master objective (with current alfa), UB is first-stage profit + true second-stage objective
+        # Bounds: LB is master objective (with current alfa), UB is first-stage profit + true second-stage objective
         LB = value(master.obj)
         first_stage_profit = sum(value(master.p[t]) * value(master.x[t]) for t in master.T1)
         second_stage_profit = exp_sub_obj
