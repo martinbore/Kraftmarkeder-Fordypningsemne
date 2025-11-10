@@ -75,7 +75,6 @@ def soc_constraint(m,h):
 
 
 # Task 3 - Solving the optimization model:
-
 model.objective = en.Objective(rule = objective_rule, sense = en.minimize)
 model.soc_con = en.Constraint(Hours, rule = soc_constraint)
 opt = SolverFactory('gurobi')
@@ -123,6 +122,7 @@ plt.legend()
 plt.grid()
 plt.tight_layout()
 plt.show()
+
 # Plot the electricity price profile with the production and load profile
 plt.figure(figsize=(10,8))
 plt.subplot(2,1,1)
