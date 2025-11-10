@@ -102,12 +102,13 @@ P = 0
 # Time of flexibility activation (minutes from start time); 
 # set to None to disable flexibility activation
 # t_act = None
-# t_act = 240 # Task 6
-# t_act = 785 # Task 1 and 2
+t_act = 785 # Task 1 and 2
+# t_act = 450 # Task 5
 # t_act = 675 # Task 6
-t_act = 900 # Task 6
+# t_act = 240 # Task 6
+# t_act = 900 # Task 6
 # 1050
-# Vi må gjøre en vurdering på når vi skal sette t_act. Gir kanskje mer mening å sette den før modellen "uten fleksibilitet" starter?
+
 
 # EWH activation signal that sets the status of the EWHs after activating flexibility; 
 # 1 turns all EWHs on; 0 turns all EWHs off; set to None to disable flexibility activation
@@ -118,8 +119,8 @@ S_act = 0
 time_steps = 24*60
 
 # Number of EWHs / hot water tanks to model
-# N_EWH = 1
-N_EWH = 100
+N_EWH = 1
+# N_EWH = 100
 
 if N_EWH == 1:
     # If modelling a single EWH, initialize temperature as specified above
@@ -165,11 +166,13 @@ for i_EWH in range(N_EWH):
 
     service_duration = 0
     for t in range(0, time_steps):
-        if P_list_all[t] >= P_list_base_all[t] if P_list_base_all[t] != 0 else P_list_all[t] > 0:
+        if P_list_base_all[t] != 0:
             service_duration += 1
+        if P_list_all[t] == P_list_base_all[t] and P_list_base_all[t]:
+            service_duration -= 1
     print(f"Duration of flexibility service: {service_duration} minutes")
 
-    # Energy capacity of the flexible resource
+    # # Energy capacity of the flexible resource
     # E_c_flex = P_cap * service_duration / 60
     # print(f"Energy capacity of flexibility resource: {E_c_flex} kWh")
     
@@ -177,10 +180,10 @@ for i_EWH in range(N_EWH):
     # for t in range(0, time_steps):
     #    if P_list_base_all[t] > 0:
     #        service_duration_base += 1
-    #E_c_base = P_cap * service_duration_base / 60
+    # E_c_base = P_cap * service_duration_base / 60
     
 
-    #E_c_base = P_cap * service_duration_base / 60
+    # E_c_base = P_cap * service_duration_base / 60
     # print(f"Energy capacity of flexibility resource based on temperature: {E_c_base} kWh")
 
 # For base case find when the EWHs are heating
@@ -193,23 +196,17 @@ print(t_heat_base[-1])
 print(len(t_heat_base))
 
 # For flexibility case find when the EWHs are heating
-t_heat_flex = []
-for t in range(850, time_steps):
-    if P_list_all[t] > 0:
-        t_heat_flex.append(t)
-print(t_heat_flex[0])
-print(t_heat_flex[-1])  
-print(len(t_heat_flex))
+# t_heat_flex = []
+# for t in range(850, time_steps):
+#     if P_list_all[t] > 0:
+#         t_heat_flex.append(t)
+# print(t_heat_flex[0])
+# print(t_heat_flex[-1])  
+# print(len(t_heat_flex))
 #____________________________________________________________________________________________
 
 # TASK 3 - Plotting and explaining the amount of flexibility activation
 #____________________________________________________________________________________________
-
-# I want to extend the plot to shade the area that is on the positive side of the y-axis and label it as
-# Energy capacity, while the area on the negative side of the y-axis is labeled as rebound effect. The plot 
-# should also have a global max point with corresponding y-value labeled as power capacity.
-
-
 
 x_series = np.arange(0, time_steps)
 y_series_base = P_list_base_all
@@ -217,22 +214,25 @@ y_series_flex =  P_list_all
 
 x_series = np.arange(0, time_steps)
 plt.plot(x_series, y_series_base - y_series_flex, label='Flexibility activation (kW)', color = 'grey')
-plt.axhline(0, color='black', linewidth=0.8, linestyle='--')
-plt.axvline(t_act, color='red', linewidth=0.8, linestyle='--', label='Flexibility activation time')
-plt.fill_between(x_series, y_series_base - y_series_flex, where=(y_series_base - y_series_flex) >= 0, 
-                 color='green', alpha=0.3, label='Energy capacity')
-plt.fill_between(x_series, y_series_base - y_series_flex, where=(y_series_base - y_series_flex) <= 0, 
-                 color='orange', alpha=0.3, label='Rebound effect')
-plt.scatter(t_act, P_cap, color='blue', zorder=2)
-plt.text(t_act, P_cap, f' Power capacity: {P_cap} kW', fontsize=9, verticalalignment='bottom', 
-         horizontalalignment='right')
+
+### REMOVE TO GET PLOTS IN EXERCISE 6 ###
+# plt.axhline(0, color='black', linewidth=0.8, linestyle='--')
+# plt.axvline(t_act, color='red', linewidth=0.8, linestyle='--', label='Flexibility activation time')
+# plt.fill_between(x_series, y_series_base - y_series_flex, where=(y_series_base - y_series_flex) >= 0, 
+#                  color='green', alpha=0.3, label='Energy capacity')
+# plt.fill_between(x_series, y_series_base - y_series_flex, where=(y_series_base - y_series_flex) <= 0, 
+#                  color='orange', alpha=0.3, label='Rebound effect')
+# plt.scatter(t_act, P_cap, color='blue', zorder=2)
+# plt.text(t_act, P_cap, f' Power capacity: {P_cap} kW', fontsize=9, verticalalignment='bottom', 
+#          horizontalalignment='right')
+### END ###
 plt.xlabel('Time (minutes)')
 plt.ylabel('Electric Water Heater Load Difference (kW)')      
 plt.title('Flexibility profile')
 plt.legend()
 plt.savefig('EWH_flexibility_activation_example.png', dpi=300)
 plt.show()
-plt.close()    
+# plt.close()    
 
 #%% Plot results for from Electric Water Heater model
 
@@ -282,9 +282,6 @@ elif N_EWH > 1:
 
 # Exercise 3:
 # Plot and explain the amount of flexibility activation
-
-
-
 plt.plot(x_series, y_series_base, label='Baseline')
 plt.plot(x_series, y_series_flex, label='Flexibility')
 plt.xlabel('Time (minutes)')
@@ -299,8 +296,3 @@ P_base = P_list_base_all[t_act] # The power consumption at t_act without flexibi
 P_flex = P_list[t_act] # The power consumption at t_act with flexibility
 power_capacity = P_base - P_flex # The difference is the total power capacity of the flexible resources
 print(f'Power Capacity at t_act = {t_act}: {power_capacity} kW')
-    
-
-# Exercise 5:   
-
-    

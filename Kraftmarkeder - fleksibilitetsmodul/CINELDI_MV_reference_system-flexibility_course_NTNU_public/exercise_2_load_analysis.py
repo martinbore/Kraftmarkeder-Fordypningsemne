@@ -110,8 +110,7 @@ def save_plot(filename, show_plot=False):
 # pp_plotting.pf_res_plotly(net)
 # print('Minimum voltage in the system: ' + str(net.res_bus['vm_pu'].min()) + ' p.u.')
 
-## Plot the voltage profile in the grid avoiding branches for better visibility. To do this we plot vm_pu vs bus index as long as the voltage 
-## drops monotonically along the radial. 
+ 
 # Extract bus indices and voltages
 bus_indices = net.res_bus.index.tolist()
 voltages = net.res_bus['vm_pu'].values
@@ -141,32 +140,6 @@ plt.savefig(os.path.join(output_dir, 'descending_voltage.png'), dpi=300, bbox_in
 
 
 # Exercise 2 - Find how much the voltages decrease as the load demand in the area increases
-# Find how much the voltages decrease as the load demand in the area increases 
-# For later reference, make a table showing the load demand values of all four existing load 
-# points in the area (on bus 90, 91, 92 and 96) and their sum (i.e., the aggregated load demand 
-# in the area). Multiply each load proportionally by a scaling factor and run power flow 
-# calculations again for different values of this scaling factor in the range 1 to 2. Plot the lowest 
-# voltage value in the area as a function of the aggregated load demand in the area, compare 
-# with the voltage limit of 0.95 p.u., and explain what this tells about the grid capacity in the 
-# area. 
-
-## Martin suggestion to solve Exercise 2 ##
-# 1. Store original load values, both real and reactive, for buses 90, 91, 92, and 96
-# 2. Loop over scaling factors from 1 to 2 in steps of 0.2
-# 3. In each iteration, scale the load values for the four buses
-# 4. Print a table showing the load demand values of all four existing load points in the area and their sum
-    # The table should have the following format:
-
-    # Bus number / Scaling factor | 1.0 | 1.2 | 1.4 | 1.6 | 1.8 | 2.0
-    # 90                          |P90|Q90|
-    # 91                          |P91|Q91|
-    # 92                          |P92|Q92|
-    # 96                          |P96|Q96|
-    # Aggregated load demand      |SumP|SumQ|
-# 5. Run power flow calculation to find voltages
-# 6. Find the minimum voltage in the system and the corresponding bus
-# 7. Store the aggregated load demand in the area and the minimum voltage for plotting
-
 P_demand_bus_90_original = net.load.loc[net.load['bus'] == 90, 'p_mw'].values[0]
 Q_demand_bus_90_original = net.load.loc[net.load['bus'] == 90, 'q_mvar'].values[0]
 P_demand_bus_91_original = net.load.loc[net.load['bus'] == 91, 'p_mw'].values[0]
@@ -345,26 +318,6 @@ for i in range(len(sorted_load_with_new)):
         hours_to_reduce += ((P_lim - sorted_load_with_new[i-1]) / (sorted_load_with_new[i] - sorted_load_with_new[i-1])) * (i-i-1)
         break
 print('Number of hours per year to reduce load demand to avoid congestion: ' + str(hours_to_reduce) + '\n')
-
-# Exercise 11 - Characterize the need for flexibility in the area
-
-print("A flexibility resource in this context should have the following characteristics:")
-print("- Sufficient capacity to reduce load by at least " + str(overloading_amount) + " MW during peak hours.")
-print("- Fast response time to quickly adjust to changing grid conditions.")
-print("- Ability to provide both upward and downward flexibility.")
-print("- Compatibility with existing grid infrastructure and technologies.")
-print("Examples of relevant flexibility resources for the DSO include:")
-print("- Demand Response Programs: Incentivizing consumers to reduce or shift their electricity usage during peak times.")
-print("- Energy Storage Systems: Batteries or other storage technologies that can store excess energy and release it during peak demand.")
-print("- Flexible Generation: Power plants that can quickly ramp up or down their output to match demand.")
-
-# Exercise 12 -  Discuss the limitations of using a load duration curve to characterize the flexibility needs in this case
-
-print("Limitations of using a load duration curve to characterize flexibility needs:")
-print("- A load duration curve only provides a static view of load patterns and does not account for dynamic changes in demand or supply.")
-print("- It does not capture the temporal aspects of flexibility, such as the speed of response or the duration for which flexibility is needed.")
-print("- The curve may not reflect the actual operational constraints and capabilities of flexibility resources.")
-print("- It does not consider the geographical distribution of loads and generation, which can impact flexibility requirements.")
 
 # Exercise 13 - Compare load duration curves for different assumptions about the new load
 
