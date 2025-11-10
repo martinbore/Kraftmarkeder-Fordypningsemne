@@ -1,17 +1,17 @@
-# Solving the problem using SDP - Stochastic Dybamic Programming
+# Solving the problem using SDP - Stochastic Dynamic Programming
 # First stage decision - Decide how much to produce for the first 24 hours
 # Second stage decision - Decide how much to produce for hour 25-48. 
 from pyomo.environ import *
-import random
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import time
 # Sets
 T = list(range(1,49))      # 1..48
 T1 = list(range(1,25))     # 1..24
 T2 = list(range(25,49))    # 25..48
 S = [0,1,2,3,4]            # inflow scenarios
-# S = [1]
+# S = [1]                    # inflow scenario
 
 # Parameters
 p = {t: 50+t for t in T}
@@ -41,11 +41,11 @@ WV_end = 52600.0
 # Discretizing the values for the reservoiar storage at the end of the first period. 
 # Using 10 discrete values:
 # Min reservoiar: 3, max reservoiar: 4.5
-# V_24_list = list(np.linspace(3, 4.5, 10))
+V_24_list = list(np.linspace(3, 4.5, 10))
 
 # Solving using 3 discrete values:
 # Min reservoiar: 3, max reservoiar: 4.5
-V_24_list = list(np.linspace(3,4.5, 3))
+# V_24_list = list(np.linspace(3,4.5, 3))
 
 # Creating the sub-problem to obtain the second stage variables and corresponding dual values:
 def create_sub(V_24, s):
@@ -166,10 +166,14 @@ def SDP_algo():
         setattr(master, cname, Constraint(expr=expr)) # Defines and appends cut to the master problem
         cuts.append(cname) # Appends cut to the list of cuts
         
-    res_master = solver.solve(master, tee=False)
+    solver.solve(master, tee=False)
     print("The objective function of master problem:", value(master.obj))
 
+start_time = time.time()
 SDP_algo()
+end_time = time.time()
+
+print("Time: ", end_time - start_time, "seconds")
 
 
 

@@ -110,7 +110,15 @@ if __name__ == "__main__":
     result = solver.solve(model, tee=True)
     print("\nObjective value:", value(model.Obj), "EUR")
     print("Reservoir at t=24:", value(model.V[24]), "Mm3")
-    print("Reservoir at t=48 (scenario 1):", value(model.V_s[48,1]), "Mm3")
+    print("Reservoir at t=48 (scenario 1):", value(model.V_s[48,0]), "Mm3")
+    print("Reservoir at t=48 (scenario 2):", value(model.V_s[48,1]), "Mm3")
+    print("Reservoir at t=48 (scenario 3):", value(model.V_s[48,2]), "Mm3")
+    print("Reservoir at t=48 (scenario 4):", value(model.V_s[48,3]), "Mm3")
+    print("Reservoir at t=48 (scenario 5):", value(model.V_s[48,4]), "Mm3")
+    # Printing the revenues for each scenario:
+    for s in model.S:
+        revenue = sum(model.p[t]*model.x[t] for t in model.T1)+sum(model.p[t]*model.x_s[t,s] for t in model.T2) + model.WV_end*model.V_s[48,s]
+        print(f"Revenue for scenario {s+1}: {value(revenue):.2f} EUR")
     for t in model.T1:
         print(f"Hour {t}: Production = {value(model.x[t]):.2f} MW, Discharge = {value(model.Q[t]):.2f} m3/s, Volume = {value(model.V[t]):.2f} Mm3")
     for s in model.S:

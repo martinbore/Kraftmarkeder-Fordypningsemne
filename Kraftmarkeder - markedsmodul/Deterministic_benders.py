@@ -107,8 +107,6 @@ def create_sub(V_24):
 # Defining Benders:
 # Master problem: First stage variabel with the given constraints. 
 # The subproblem: The second stage variables with the given constraints. 
-
-
 def Benders_algo():
     master = create_master()
     UB = 1e5
