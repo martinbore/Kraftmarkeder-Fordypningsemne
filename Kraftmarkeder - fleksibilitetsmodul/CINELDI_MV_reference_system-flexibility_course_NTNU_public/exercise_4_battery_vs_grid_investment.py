@@ -184,119 +184,129 @@ growth_factor = 0.03  # 3% annual growth
 
 # # Task 7 - Estimate the annual operational costs of using battery for congestion management in the grid area
 
-# operation_cost = []
-# for year in range(years):
-#     load = load_time_series_subset_aggr * (1 + growth_factor) ** year
-#     max_load = 4.0  # MW
-#     excess_load = load - max_load
-#     excess_load[excess_load < 0] = 0  # Only consider positive excess load
-#     cost_per_mwh = 2000  # NOK/MWh
-#     annual_cost = excess_load.sum() * cost_per_mwh * 20
-#     operation_cost.append(annual_cost)
-#     print("-----")
-#     print(f"Excess load profile sum for year {year}: {20*excess_load.sum():3f} MWh")
-#     print(f"Estimated annual operational cost for year {year}: {annual_cost:.0f} NOK")
+operation_cost = []
+for year in range(years):
+    load = load_time_series_subset_aggr * (1 + growth_factor) ** year
+    max_load = 4.0  # MW
+    excess_load = load - max_load
+    excess_load[excess_load < 0] = 0  # Only consider positive excess load
+    cost_per_mwh = 2000  # NOK/MWh
+    annual_cost = excess_load.sum() * cost_per_mwh * 20
+    operation_cost.append(annual_cost)
+    print("-----")
+    print(f"Excess load profile sum for year {year}: {20*excess_load.sum():3f} MWh")
+    print(f"Estimated annual operational cost for year {year}: {annual_cost:.0f} NOK")
 
 
 # # Task 8 - Estimate the annual expected energy not supplied for grid planning alternative A
-# lambda_perm = data_comp_rel.loc['Overhead line (1_22 kV)', 'lambda_perm'] # Failure rate for lines (failures per 100 km/year)
+lambda_perm = data_comp_rel.loc['Overhead line (1_22 kV)', 'lambda_perm'] # Failure rate for lines (failures per 100 km/year)
 line_length = 20 # km
-# expected_failures_per_year = (lambda_perm / 100) * line_length
-# duration_per_failure = data_comp_rel.loc['Overhead line (1_22 kV)', 'r_perm']  # hours
-# yearly_downtime = expected_failures_per_year * duration_per_failure
-# avg_load = 1.841 # MW (mean load in the grid area)
+expected_failures_per_year = (lambda_perm / 100) * line_length
+duration_per_failure = data_comp_rel.loc['Overhead line (1_22 kV)', 'r_perm']  # hours
+yearly_downtime = expected_failures_per_year * duration_per_failure
+avg_load = 1.841 # MW (mean load in the grid area)
 
-# for year in range(years):
-#     load = avg_load * (1 + growth_factor) ** year
-#     ens = yearly_downtime * load  # MWh
-#     print("-----")
-#     print(f"Estimated annual ENS for year {year} : {ens:.2f} MWh")
+# # for year in range(years):
+# #     load = avg_load * (1 + growth_factor) ** year
+# #     ens = yearly_downtime * load  # MWh
+# #     print("-----")
+# #     print(f"Estimated annual ENS for year {year} : {ens:.2f} MWh")
 
 # # # Task 9 - Estimate the annual costs of energy not supplied for grid planning alternative A
-# c_ens = 0
-# for bus in bus_i_subset:
-#     c_ens += data_load_point.loc[bus, 'c_NOK_per_kWh_4h']  # NOK/kWh
+c_ens = 0
+for bus in bus_i_subset:
+    c_ens += data_load_point.loc[bus, 'c_NOK_per_kWh_4h']  # NOK/kWh
     
-# c_ens = c_ens/len(bus_i_subset)  # Average cost of ENS across the buses in the area
-# Interruption_costs_A = []
-# for year in range(years):
-#     load = avg_load * (1 + growth_factor) ** year
-#     ens = yearly_downtime * load  # MWh
-#     annual_cost_ens = ens * 1000 * c_ens  # NOK
-#     Interruption_costs_A.append(annual_cost_ens)
-#     print("-----")
-#     print(f"Estimated annual cost of ENS in year {year} : {annual_cost_ens:.0f} NOK")
+c_ens = c_ens/len(bus_i_subset)  # Average cost of ENS across the buses in the area
+Interruption_costs_A = []
+for year in range(years):
+    load = avg_load * (1 + growth_factor) ** year
+    ens = yearly_downtime * load  # MWh
+    annual_cost_ens = ens * 1000 * c_ens  # NOK
+    Interruption_costs_A.append(annual_cost_ens)
+    print("-----")
+    print(f"Estimated annual cost of ENS in year {year} : {annual_cost_ens:.0f} NOK")
 
 # # Task 10 - Estimate the annual costs of energy not supplied for grid planning alternative B (with battery)
-# Interruption_costs_B = []
-# for year in range(years):
-#     load = avg_load * (1 + growth_factor) ** year 
-#     ens_load = yearly_downtime * load  # MWh, assuming battery can cover 2 MW of load whenever failure occurs
-#     se_battery = expected_failures_per_year * 2  # MWh, energy supplied by battery during failures
-#     ens = max(0, ens_load - se_battery)  # MWh
-#     annual_cost_ens = ens * 1000 * c_ens  # NOK
-#     Interruption_costs_B.append(annual_cost_ens)
-#     print("-----")
-#     print(f"Estimated annual ENS (with battery) in year {year}: {ens:.2f} MWh")
-#     print(f"Estimated annual cost of ENS with battery in year {year} : {annual_cost_ens:.0f} NOK")
+Interruption_costs_B = []
+for year in range(years):
+    if year != years-1:
+        load = avg_load * (1 + growth_factor) ** year 
+        ens_load = yearly_downtime * load  # MWh, assuming battery can cover 2 MW of load whenever failure occurs
+        se_battery = expected_failures_per_year * 2  # MWh, energy supplied by battery during failures
+        ens = max(0, ens_load - se_battery)  # MWh
+        annual_cost_ens = ens * 1000 * c_ens  # NOK
+        Interruption_costs_B.append(annual_cost_ens)
+        print("-----")
+        print(f"Estimated annual ENS (with battery) in year {year}: {ens:.2f} MWh")
+        print(f"Estimated annual cost of ENS with battery in year {year} : {annual_cost_ens:.0f} NOK")
+    else:
+        annual_cost_ens = Interruption_costs_A[-1]
+        Interruption_costs_B.append(annual_cost_ens)
+        print("-----")
+        print(f"Estimated annual ENS (with battery) in year {year}: {ens:.2f} MWh")
+        print(f"Estimated annual cost of ENS with battery in year {year} : {annual_cost_ens:.0f} NOK")
+
 
 
 # # Task 12 Calculate total present value of the socio-economic costs of grid planning alternative A
 C_km = 759408 #NOK/km
 C_inv = C_km * line_length  # NOK
-# print("------")
-# print(C_inv)
+print("------")
+print(C_inv)
 
-# r = 0.04  # discount rate
+r = 0.04  # discount rate
 
-# t_end = 20
-# t_investment = 1
-# t_life = 40
+t_end = 20
+t_investment = 1
+t_life = 40
 
-# C_residual = C_inv * (t_life - (t_end - t_investment)) / t_life
-# NPV_total_A = C_inv/(1 + r) ** (t_investment) - C_residual / (1 + r) ** (t_end)
-# NPV_cens_A = 0
+C_residual = C_inv * (t_life - (t_end - t_investment)) / t_life
+NPV_total_A = C_inv/(1 + r) ** (t_investment) - C_residual / (1 + r) ** (t_end)
+NPV_cens_A = 0
 
-# for i in range(len(Interruption_costs_A)):
-#     NPV_cens_A += Interruption_costs_A[i] / (1 + r) **(i)
-#     print("-----")
-#     print(f"NPV of interruption costs year {i}: {Interruption_costs_A[i]/ (1 + r) **(i):.0f} NOK")
+for i in range(len(Interruption_costs_A)):
+    NPV_cens_A += Interruption_costs_A[i] / (1 + r) **(i)
+    print("-----")
+    print(f"NPV of interruption costs year {i}: {Interruption_costs_A[i]/ (1 + r) **(i):.0f} NOK")
 
-# NPV_secio_economic_costs_A = NPV_total_A + NPV_cens_A
-# print("===================================")
-# print(f"NPV of investment costs alternative A: {NPV_total_A:.0f} NOK")
-# print(f"NPV of interruption costs alternative A: {NPV_cens_A:.0f} NOK")
-# print(f"NPV of total socio-economic costs alternative A: {NPV_secio_economic_costs_A:.0f} NOK")
+NPV_secio_economic_costs_A = NPV_total_A + NPV_cens_A
+print("===================================")
+print(f"NPV of investment costs alternative A: {NPV_total_A:.0f} NOK")
+print(f"NPV of interruption costs alternative A: {NPV_cens_A:.0f} NOK")
+print(f"NPV of total socio-economic costs alternative A: {NPV_secio_economic_costs_A:.0f} NOK")
 
 # # Task 13 - Calculate total present value of the socio-economic costs of grid planning alternative B (with battery)
-# operation_cost_PV = []
-# Interruption_costs_B_PV = [Interruption_costs_A[0]]
-# for year in range(len(operation_cost)):
-#     if year != len(operation_cost)-1:
-#         operation_cost_PV.append(operation_cost[year] / (1 + r) **(year))
-#     else:
-#         operation_cost_PV.append(0)  # No operation cost in year 10, as we only consider 10 years
-#     if year > 0:
-#         Interruption_costs_B_PV.append(Interruption_costs_B[year] / (1 + r) **(year))
-#     print("-----")
-#     print(f"PV of operation costs year {year}: {operation_cost_PV[year]:.0f} NOK")
-#     print(f"PV of interruption costs year {year}: {Interruption_costs_B_PV[year]:.0f} NOK")
+operation_cost_PV = []
+Interruption_costs_B_PV = [Interruption_costs_A[0]]
+for year in range(len(operation_cost)):
+    if year != len(operation_cost)-1:
+        operation_cost_PV.append(operation_cost[year] / (1 + r) **(year))
+    else:
+        operation_cost_PV.append(0)  # No operation cost in year 10, as we only consider 10 years
+    if year > 0:
+        Interruption_costs_B_PV.append(Interruption_costs_B[year] / (1 + r) **(year))
+    print("-----")
+    print(f"PV of operation costs year {year}: {operation_cost_PV[year]:.0f} NOK")
+    print(f"PV of interruption costs year {year}: {Interruption_costs_B_PV[year]:.0f} NOK")
+
+
 
 def present_value(t_end, t_inv, r, C_inv, t_life):
     C_residual = C_inv * (t_life - (t_end - t_inv)) / t_life
     NPV_total = C_inv/(1 + r) ** (t_inv) - C_residual / (1 + r) ** (t_end)
     return NPV_total
 
-# NPV_inv_B = present_value(20, 9, 0.04, C_inv, 40)  # NOK
-# print("------")
-# print(f"NPV of investment costs alternative B: {NPV_inv_B:.0f} NOK")
-# print("------")
-# print(f"NPV of operation costs alternative B: {sum(operation_cost_PV):.0f} NOK")
-# print("------")
-# print(f"NPV of interruption costs alternative B: {sum(Interruption_costs_B_PV):.0f} NOK")
-# NPV_secio_economic_costs_B = NPV_inv_B + sum(operation_cost_PV) + sum(Interruption_costs_B_PV)
-# print("===================================")
-# print(f"NPV of total socio-economic costs alternative B: {NPV_secio_economic_costs_B:.0f} NOK")
+NPV_inv_B = present_value(20, 9, 0.04, C_inv, 40)  # NOK
+print("------")
+print(f"NPV of investment costs alternative B: {NPV_inv_B:.0f} NOK")
+print("------")
+print(f"NPV of operation costs alternative B: {sum(operation_cost_PV):.0f} NOK")
+print("------")
+print(f"NPV of interruption costs alternative B: {sum(Interruption_costs_B_PV):.0f} NOK")
+NPV_secio_economic_costs_B = NPV_inv_B + sum(operation_cost_PV) + sum(Interruption_costs_B_PV)
+print("===================================")
+print(f"NPV of total socio-economic costs alternative B: {NPV_secio_economic_costs_B:.0f} NOK")
 
 # Task 14 - Modify the optimization model from Exercise 3 to model the operation of the battery
 from pyomo.opt import SolverFactory
