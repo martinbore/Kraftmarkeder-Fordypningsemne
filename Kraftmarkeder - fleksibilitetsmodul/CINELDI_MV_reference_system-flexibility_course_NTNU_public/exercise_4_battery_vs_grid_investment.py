@@ -78,10 +78,6 @@ profiles_mapped = load_profiles.map_rel_load_profiles(filename_load_mapping_full
 # maximum load value for each of the load points in the grid data set (in units MW); the column index is the bus number
 # (1-indexed) and the row index is the hour of the year (0-indexed)
 load_time_series_mapped = profiles_mapped.mul(net.load['p_mw'])
-# print("Load time series data (first 5 rows):")
-# print(load_time_series_mapped)
-# print(len(load_time_series_mapped))
-
 
 
 # %% Aggregate the load demand in the area
@@ -107,82 +103,79 @@ P_max_start = 3.9  # MW
 growth_factor = 0.03  # 3% annual growth
 
 # # Calculate peak load values for each year
-# peak_loads = peak_load_demand_development(P_max_start, growth_factor, years)
-# year_labels = list(range(years))
+peak_loads = peak_load_demand_development(P_max_start, growth_factor, years)
+year_labels = list(range(years))
 
 # # Create the step plot
-# plt.figure(figsize=(10, 6))
-# plt.step(year_labels, peak_loads, where='post', linewidth=2, marker='o', markersize=6)
+plt.figure(figsize=(10, 6))
+plt.step(year_labels, peak_loads, where='post', linewidth=2, marker='o', markersize=6)
 
 # # Add horizontal red dashed line at 4 MW limit
-# plt.axhline(y=4, color='red', linestyle='--', linewidth=2, label='4 MW Limit')
+plt.axhline(y=4, color='red', linestyle='--', linewidth=2, label='4 MW Limit')
 
-# plt.xlabel('Year')
-# plt.ylabel('Peak Load (MW)')
-# plt.title('Peak Load Development over 10 Years (3% Annual Growth)')
-# plt.grid(True, alpha=0.3)
-# plt.xticks(range(years + 1))  # Show x-axis from 0 to 10
-# plt.xlim(-0.5, years)  # Set x-axis limits to show year 10
+plt.xlabel('Year')
+plt.ylabel('Peak Load (MW)')
+plt.title('Peak Load Development over 10 Years (3% Annual Growth)')
+plt.grid(True, alpha=0.3)
+plt.xticks(range(years + 1))  # Show x-axis from 0 to 10
+plt.xlim(-0.5, years)  # Set x-axis limits to show year 10
 
 # # Add value labels on each point
-# for i, value in enumerate(peak_loads):
-#     plt.annotate(f'{value:.2f}', (i, value), textcoords="offset points", 
-#                 xytext=(0,10), ha='center', fontsize=9)
+for i, value in enumerate(peak_loads):
+    plt.annotate(f'{value:.2f}', (i, value), textcoords="offset points", 
+                xytext=(0,10), ha='center', fontsize=9)
 
-# plt.legend()
-# plt.tight_layout()
-# plt.show()
+plt.legend()
+plt.tight_layout()
+plt.show()
 
 # # Print the values
-# print("Peak load development over 10 years:")
-# for year, load in enumerate(peak_loads):
-#     print(f"Year {year}: {load:.2f} MW")
+print("Peak load development over 10 years:")
+for year, load in enumerate(peak_loads):
+    print(f"Year {year}: {load:.2f} MW")
 
 
 
-# #### TASK 6 ####
-
-# # Reuse the same function from Task 2
-# # (function is already defined above)
+# Task 6 - Find how a battery in the grid can postpone grid investments and reduce its present value
 
 # # Plot peak load development over 10 years with battery insertion after Year 1
-# years = 10
-# P_max_start = 3.9  # MW
-# growth_factor = 0.03  # 3% annual growth
+years = 10
+P_max_start = 3.9  # MW
+growth_factor = 0.03  # 3% annual growth
 
 # # Calculate peak load values for each year
-# peak_loads = peak_load_demand_development(P_max_start, growth_factor, years)
-# year_labels = list(range(years))
+peak_loads = peak_load_demand_development(P_max_start, growth_factor, years)
+year_labels = list(range(years))
 
 # # Create the step plot
-# plt.figure(figsize=(10, 6))
-# plt.step(year_labels, peak_loads, where='post', linewidth=2, marker='o', markersize=6, label='Peak Load')
+plt.figure(figsize=(10, 6))
+plt.step(year_labels, peak_loads, where='post', linewidth=2, marker='o', markersize=6, label='Peak Load')
 
 # # Create dynamic limit line with clear jump at year 1
-# limit_years = [0, 1, 1, years]  # Include year 1 twice for the vertical jump
-# limit_values = [4, 4, 5, 5]     # 4MW until year 1, then jump to 5MW at year 1
-# plt.plot(limit_years, limit_values, color='red', linestyle='--', linewidth=2, label='Grid Limit (4MW → 5MW with battery)')
+limit_years = [0, 1, 1, years]  # Include year 1 twice for the vertical jump
+limit_values = [4, 4, 5, 5]     # 4MW until year 1, then jump to 5MW at year 1
+plt.plot(limit_years, limit_values, color='red', linestyle='--', linewidth=2, label='Grid Limit (4MW → 5MW with battery)')
 
 # # Add vertical line to show when battery is inserted
-# plt.axvline(x=1, color='green', linestyle=':', linewidth=2, alpha=0.7, label='Battery Insertion')
+plt.axvline(x=1, color='green', linestyle=':', linewidth=2, alpha=0.7, label='Battery Insertion')
 
-# plt.xlabel('Year')
-# plt.ylabel('Peak Load (MW)')
-# plt.title('Peak Load Development with Battery Insertion (3% Annual Growth)')
-# plt.grid(True, alpha=0.3)
-# plt.xticks(range(years + 1))  # Show x-axis from 0 to 10
-# plt.xlim(-0.5, years)  # Set x-axis limits to show year 10
+plt.xlabel('Year')
+plt.ylabel('Peak Load (MW)')
+plt.title('Peak Load Development with Battery Insertion (3% Annual Growth)')
+plt.grid(True, alpha=0.3)
+plt.xticks(range(years + 1))  # Show x-axis from 0 to 10
+plt.xlim(-0.5, years)  # Set x-axis limits to show year 10
 
-# # Add value labels on each point
-# for i, value in enumerate(peak_loads):
-#     plt.annotate(f'{value:.2f}', (i, value), textcoords="offset points", 
-#                 xytext=(0,10), ha='center', fontsize=9)
+# Add value labels on each point
+for i, value in enumerate(peak_loads):
+    plt.annotate(f'{value:.2f}', (i, value), textcoords="offset points", 
+                xytext=(0,10), ha='center', fontsize=9)
 
-# plt.legend()
-# plt.tight_layout()
-# plt.show()
+plt.legend()
+plt.tight_layout()
+plt.show()
 
-# # Task 7 - Estimate the annual operational costs of using battery for congestion management in the grid area
+# Task 7 - Estimate the annual operational costs of using battery for congestion management in the grid area
 
 operation_cost = []
 for year in range(years):
@@ -198,7 +191,7 @@ for year in range(years):
     print(f"Estimated annual operational cost for year {year}: {annual_cost:.0f} NOK")
 
 
-# # Task 8 - Estimate the annual expected energy not supplied for grid planning alternative A
+# Task 8 - Estimate the annual expected energy not supplied for grid planning alternative A
 lambda_perm = data_comp_rel.loc['Overhead line (1_22 kV)', 'lambda_perm'] # Failure rate for lines (failures per 100 km/year)
 line_length = 20 # km
 expected_failures_per_year = (lambda_perm / 100) * line_length
@@ -206,13 +199,13 @@ duration_per_failure = data_comp_rel.loc['Overhead line (1_22 kV)', 'r_perm']  #
 yearly_downtime = expected_failures_per_year * duration_per_failure
 avg_load = 1.841 # MW (mean load in the grid area)
 
-# # for year in range(years):
-# #     load = avg_load * (1 + growth_factor) ** year
-# #     ens = yearly_downtime * load  # MWh
-# #     print("-----")
-# #     print(f"Estimated annual ENS for year {year} : {ens:.2f} MWh")
+for year in range(years):
+    load = avg_load * (1 + growth_factor) ** year
+    ens = yearly_downtime * load  # MWh
+    print("-----")
+    print(f"Estimated annual ENS for year {year} : {ens:.2f} MWh")
 
-# # # Task 9 - Estimate the annual costs of energy not supplied for grid planning alternative A
+# Task 9 - Estimate the annual costs of energy not supplied for grid planning alternative A
 c_ens = 0
 for bus in bus_i_subset:
     c_ens += data_load_point.loc[bus, 'c_NOK_per_kWh_4h']  # NOK/kWh
@@ -227,7 +220,7 @@ for year in range(years):
     print("-----")
     print(f"Estimated annual cost of ENS in year {year} : {annual_cost_ens:.0f} NOK")
 
-# # Task 10 - Estimate the annual costs of energy not supplied for grid planning alternative B (with battery)
+# Task 10 - Estimate the annual costs of energy not supplied for grid planning alternative B (with battery)
 Interruption_costs_B = []
 for year in range(years):
     if year != years-1:
@@ -485,50 +478,52 @@ discharging_efficiency=parameters["Discharging_efficiency"]
 # # plt.show()
 # plt.savefig('./plots/Exercise_4_14_net_load_profile.png')
 
-# # Task 15 - Solve the model for P_base_load for year 6
-# load_time_series_subset_aggr_year6 = load_time_series_subset_aggr * (1 + growth_factor) ** 6
-# congestion_mwh = []
-# congestion_mwh_aggr = 0
-# congestion_mwh_aggr_list = []
-# battery_SoC = 0  # MWh
-# power_limit = 1 # MW
-# energy_capacity = 2 # MWh
+### END OF COPY OF EXERCISE 3 ###
 
-# for load in load_time_series_subset_aggr_year6:
-#     excess_load = load - P_lim
-#     if excess_load > 0:
-#         # There is congestion
-#         if battery_SoC > 0:
-#             # Battery can help reduce congestion
-#             discharge = min(excess_load, power_limit, battery_SoC)
-#             battery_SoC -= discharge*discharging_efficiency
-#             excess_load -= discharge*discharging_efficiency
-#         congestion_mwh.append(excess_load)
-#         congestion_mwh_aggr += excess_load
-#     else:
-#         # No congestion, charge the battery if possible
-#         charge = min(-excess_load, power_limit, energy_capacity - battery_SoC)
-#         battery_SoC += charge*charging_efficiency
-#         congestion_mwh.append(0)
-#     congestion_mwh_aggr_list.append(congestion_mwh_aggr)
-#     # print(f"Load: {load:.2f} MW, Excess Load: {excess_load:.2f} MW, Battery SoC: {battery_SoC:.2f} MWh")
+# # Task 15 - Solve the model for P_base_load for year 6
+load_time_series_subset_aggr_year6 = load_time_series_subset_aggr * (1 + growth_factor) ** 6
+congestion_mwh = []
+congestion_mwh_aggr = 0
+congestion_mwh_aggr_list = []
+battery_SoC = 0  # MWh
+power_limit = 1 # MW
+energy_capacity = 2 # MWh
+
+for load in load_time_series_subset_aggr_year6:
+    excess_load = load - P_lim
+    if excess_load > 0:
+        # There is congestion
+        if battery_SoC > 0:
+            # Battery can help reduce congestion
+            discharge = min(excess_load, power_limit, battery_SoC)
+            battery_SoC -= discharge*discharging_efficiency
+            excess_load -= discharge*discharging_efficiency
+        congestion_mwh.append(excess_load)
+        congestion_mwh_aggr += excess_load
+    else:
+        # No congestion, charge the battery if possible
+        charge = min(-excess_load, power_limit, energy_capacity - battery_SoC)
+        battery_SoC += charge*charging_efficiency
+        congestion_mwh.append(0)
+    congestion_mwh_aggr_list.append(congestion_mwh_aggr)
+    # print(f"Load: {load:.2f} MW, Excess Load: {excess_load:.2f} MW, Battery SoC: {battery_SoC:.2f} MWh")
     
 
-# # Plot the accumulated congestion MWh over the day
-# plt.figure(figsize=(10, 6))
-# plt.plot(range(1, 25), congestion_mwh, label='Hourly Congestion (MWh)', color='purple')
-# c=0
-# for h in range(len(congestion_mwh)):
-#     if congestion_mwh[h] > 0:
-#         c+=1
-#         plt.scatter(h+1, congestion_mwh[h], color='red', alpha=0.5, label=f'Congestion Occurrence n={c}' if c==12 else "")
-# plt.title('Hourly Congestion Over the Day')
-# plt.xlabel('Hour')
-# plt.ylabel('Congested energy (MWh)')
-# plt.legend()
-# plt.grid()
-# # plt.show()
-# plt.savefig('./plots/Exercise_4_14_accumulated_congestion.png')
+# Plot the accumulated congestion MWh over the day
+plt.figure(figsize=(10, 6))
+plt.plot(range(1, 25), congestion_mwh, label='Hourly Congestion (MWh)', color='purple')
+c=0
+for h in range(len(congestion_mwh)):
+    if congestion_mwh[h] > 0:
+        c+=1
+        plt.scatter(h+1, congestion_mwh[h], color='red', alpha=0.5, label=f'Congestion Occurrence n={c}' if c==12 else "")
+plt.title('Hourly Congestion Over the Day')
+plt.xlabel('Hour')
+plt.ylabel('Congested energy (MWh)')
+plt.legend()
+plt.grid()
+# plt.show()
+plt.savefig('./plots/Exercise_4_14_accumulated_congestion.png')
 
 delta_PV_A = present_value(20, 7, 0.04, C_inv, 40) - present_value(20, 9, 0.04, C_inv, 40)
 print("------")

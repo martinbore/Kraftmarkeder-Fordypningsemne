@@ -176,16 +176,6 @@ for i_EWH in range(N_EWH):
     # E_c_flex = P_cap * service_duration / 60
     # print(f"Energy capacity of flexibility resource: {E_c_flex} kWh")
     
-    # service_duration_base = 0
-    # for t in range(0, time_steps):
-    #    if P_list_base_all[t] > 0:
-    #        service_duration_base += 1
-    # E_c_base = P_cap * service_duration_base / 60
-    
-
-    # E_c_base = P_cap * service_duration_base / 60
-    # print(f"Energy capacity of flexibility resource based on temperature: {E_c_base} kWh")
-
 # For base case find when the EWHs are heating
 t_heat_base = []
 for t in range(0, time_steps):
