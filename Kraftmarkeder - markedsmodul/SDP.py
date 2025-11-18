@@ -1,6 +1,7 @@
 # Solving the problem using SDP - Stochastic Dynamic Programming
 # First stage decision - Decide how much to produce for the first 24 hours
 # Second stage decision - Decide how much to produce for hour 25-48. 
+from doctest import master
 from pyomo.environ import *
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -110,8 +111,9 @@ def create_master():
     master.Q = Var(master.T1, domain=NonNegativeReals, bounds=(0,Qmax))
     master.V = Var(master.T1, domain=NonNegativeReals, bounds=(0,Vmax))
 
-    # Defining alfa:
-    master.alfa = Var(domain=Reals, initialize = 0)
+    # Defining alfa, with the upper bound corresponding to the same as the one in Benders:
+    alpha_upper = 1e6
+    master.alfa = Var(bounds=(None, alpha_upper))
 
     # Constraints
     def reservoir_day1_rule(m,t):
@@ -135,8 +137,6 @@ def create_master():
 
     return master
 
-
-# Solve the problem for one stochastic scenario, using 10 discrete points for the state variable in the second stage. Explain your results.
 
 # After solving the sub-problem, we can solve the master problem:
 second_stage_solutions = {}

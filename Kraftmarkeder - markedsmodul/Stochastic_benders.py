@@ -138,10 +138,11 @@ def Benders_algo():
         opt = SolverFactory('glpk')
         # Solve master and ensure solution is loaded into the model
         # Prevent master from being unbounded at the very first iteration: fix alfa=0
-        if it == 1:
-            master.alfa.fix(0)
-        else:
-            master.alfa.unfix()
+        # Define an upper bound for alpha
+        alpha_upper = 10**6
+
+        # Add a constraint alpha <= alpha_upper
+        master.alpha_upper_con = Constraint(expr = master.alfa <= alpha_upper)
         # Solving the master problem and extracting the value to send to sub_problem:
         opt.solve(master, tee=False)
         V_24_k = value(master.V[24])
@@ -163,11 +164,11 @@ def Benders_algo():
             #print(f"Scenario {s} objective: {sub_obj}")
 
 
-        # Bounds: LB is master objective (with current alfa), UB is first-stage profit + true second-stage objective
-        LB = value(master.obj)
+        # Bounds: UB is master objective (with current alfa), LB is first-stage profit + true second-stage objective
+        UB = value(master.obj)
         first_stage_profit = sum(value(master.p[t]) * value(master.x[t]) for t in master.T1)
         second_stage_profit = exp_sub_obj
-        UB = first_stage_profit + second_stage_profit
+        LB = first_stage_profit + second_stage_profit
         print(f'LB: {LB}, UB: {UB}, Gap: {abs(UB-LB)}')
 
 

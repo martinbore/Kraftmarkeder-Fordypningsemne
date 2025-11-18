@@ -2,8 +2,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Extracting data from excel file
-df_p = pd.read_excel(r"C:\Users\marti\Documents\Kraftmarkeder Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul\Data_input_exercise 1.xlsx", sheet_name="Power Prices")
-df_i = pd.read_excel(r"C:\Users\marti\Documents\Kraftmarkeder Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul\Data_input_exercise 1.xlsx", sheet_name="Inflow Scenarios")
+# df_p = pd.read_excel(r"C:\Users\marti\Documents\Kraftmarkeder Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul\Data_input_exercise 1.xlsx", sheet_name="Power Prices")
+# df_i = pd.read_excel(r"C:\Users\marti\Documents\Kraftmarkeder Fordypningsemne\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul\Data_input_exercise 1.xlsx", sheet_name="Inflow Scenarios")
+df_p = pd.read_excel(r"C:\TET4565 Kraftmarkeder\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul\Data_input_exercise 1.xlsx", sheet_name="Power Prices")
+df_i = pd.read_excel(r"C:\TET4565 Kraftmarkeder\Kraftmarkeder-Fordypningsemne\Kraftmarkeder - markedsmodul\Data_input_exercise 1.xlsx", sheet_name="Inflow Scenarios")
 
 print(df_p.head())
 print(df_i.head())
@@ -25,7 +27,7 @@ plt.savefig('power_price_vs_time.png')
 
 # The inflow vs scenario must be a bar plot
 plt.figure(figsize=(12, 6))
-plt.bar(scenario, inflow, label='Inflow', color='green')
+plt.bar(scenario+1, inflow, label='Inflow', color='green')
 plt.xlabel('Scenario')
 plt.ylabel('Inflow (m3/s)')
 plt.title('Inflow vs Scenario')
