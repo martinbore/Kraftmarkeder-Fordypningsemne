@@ -24,6 +24,7 @@ plt.title('Power Price vs Time')
 plt.legend()
 plt.grid()
 plt.savefig('power_price_vs_time.png')
+plt.show()
 
 # The inflow vs scenario must be a bar plot
 plt.figure(figsize=(12, 6))
@@ -33,4 +34,4 @@ plt.ylabel('Inflow (m3/s)')
 plt.title('Inflow vs Scenario')
 plt.legend()
 plt.savefig('inflow_vs_scenario.png')
-
+plt.show()
