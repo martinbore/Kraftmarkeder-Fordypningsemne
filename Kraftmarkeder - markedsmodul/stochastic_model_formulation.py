@@ -81,7 +81,7 @@ model.res_day1 = Constraint(model.T1, rule=reservoir_day1_rule)
 # Reservoir balance day 2
 def reservoir_day2_rule(m,t,s):
     if t == 25:
-        return m.V_s[t,s] == m.V[24] + m.M_conv*(m.I_s[t,s] - m.Q_s[t,s]) - m.spill[t,s]
+        return m.V_s[t,s] == m.V[24] + m.M_conv*(m.I_s[t,s] - m.Q_s[t,s]) - m.spill[t,s] 
     return m.V_s[t,s] == m.V_s[t-1,s] + m.M_conv*(m.I_s[t,s] - m.Q_s[t,s]) - m.spill[t,s]
 model.res_day2 = Constraint(model.T2, model.S, rule=reservoir_day2_rule)
 

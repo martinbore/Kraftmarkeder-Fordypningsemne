@@ -60,7 +60,7 @@ model.WV_end = Param(initialize=WV_end)
 model.x  = Var(model.T, domain=NonNegativeReals, bounds=(0,Pmax))
 model.Q  = Var(model.T, domain=NonNegativeReals, bounds=(0,Qmax))
 model.V  = Var(model.T, domain=NonNegativeReals, bounds=(0,Vmax))
-model.spill = Var(model.T, domain=NonNegativeReals, bounds=(0,Vmax))
+model.spill = Var(model.T2, domain=NonNegativeReals, bounds=(0,Vmax))
 
 
 # Objective function:
@@ -70,8 +70,8 @@ def objective_func(m):
 # Constraints:
 def reservoir_day1_rule(m,t):
     if t == 1:
-        return m.V[t] == m.V0 + m.M_conv*(m.I[t] - m.Q[t]) - m.spill[t]
-    return m.V[t] == m.V[t-1] + m.M_conv*(m.I[t] - m.Q[t]) - m.spill[t]
+        return m.V[t] == m.V0 + m.M_conv*(m.I[t] - m.Q[t]) 
+    return m.V[t] == m.V[t-1] + m.M_conv*(m.I[t] - m.Q[t]) 
 model.res_day1 = Constraint(model.T1, rule=reservoir_day1_rule)
 
 def reservoir_day2_rule(m,t):
@@ -91,7 +91,9 @@ result = solver.solve(model, tee=False)
 print("Objective value:", value(model.Obj), "EUR")
 print("Reservoir at t=24:", value(model.V[24]), "Mm3")
 print("Reservoir at t=48:", value(model.V[48]), "Mm3")
-for t in model.T:
+for t in model.T1:
+    print(f"Hour {t}: Production = {value(model.x[t]):.2f} MW, Discharge = {value(model.Q[t]):.2f} m3/s, Volume = {value(model.V[t]):.2f} Mm3")
+for t in model.T2:
     print(f"Hour {t}: Production = {value(model.x[t]):.2f} MW, Discharge = {value(model.Q[t]):.2f} m3/s, Volume = {value(model.V[t]):.2f} Mm3, Spillage:{value(model.spill[t]):.2f} Mm3")
 
 # Plotting the results for production, reservoir volume and discharge for the two day schedule
@@ -104,7 +106,7 @@ plt.ylabel('Production (MW)')
 plt.title('Production Schedule Over 48 Hours')
 plt.grid(True)
 plt.xticks(hours)
-# plt.show()
+plt.show()
 plt.savefig('production_schedule_expected.png')
 
 plt.figure(figsize=(12, 6))
@@ -115,7 +117,7 @@ plt.ylabel('Reservoir Volume (Mm3)')
 plt.title('Reservoir Volume Over 48 Hours')
 plt.grid(True)
 plt.xticks(hours)
-# plt.show()
+plt.show()
 plt.savefig('reservoir_volume_expected.png')
 
 # plt.figure(figsize=(12, 6))

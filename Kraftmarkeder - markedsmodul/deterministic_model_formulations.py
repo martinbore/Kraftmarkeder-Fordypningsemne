@@ -94,13 +94,13 @@ for s in S:
     model_s.x_s = Var(model_s.T2, domain=NonNegativeReals, bounds=(0,Pmax))
     model_s.Q_s = Var(model_s.T2, domain=NonNegativeReals, bounds=(0,Qmax))
     model_s.V_s = Var(model_s.T2, domain=NonNegativeReals, bounds=(0,Vmax))
-    model_s.spill = Var(model_s.T1|model_s.T2, domain=NonNegativeReals, bounds=(0,Vmax))
+    model_s.spill = Var(model_s.T2, domain=NonNegativeReals, bounds=(0,Vmax))
 
     # Constraints
     def reservoir_day1_rule(m,t):
         if t == 1:
-            return m.V[t] == m.V0 + m.M_conv*(m.I[t] - m.Q[t]) - m.spill[t]
-        return m.V[t] == m.V[t-1] + m.M_conv*(m.I[t] - m.Q[t]) - m.spill[t]
+            return m.V[t] == m.V0 + m.M_conv*(m.I[t] - m.Q[t]) 
+        return m.V[t] == m.V[t-1] + m.M_conv*(m.I[t] - m.Q[t]) 
     model_s.res_day1 = Constraint(model_s.T1, rule=reservoir_day1_rule)
     
     def reservoir_day2_rule(m,t):
@@ -132,7 +132,7 @@ for s in S:
     print("Reservoir at t=24:", round(value(model_s.V[24]), 2), "Mm3")
     print("Reservoir at t=48:", round(value(model_s.V_s[48]), 2), "Mm3")
     for t in model_s.T1:
-        print(f"Hour {t}: Production = {value(model_s.x[t]):.2f} MW, Discharge = {value(model_s.Q[t]):.2f} m3/s, Volume = {value(model_s.V[t]):.2f} Mm3, Spillage: {value(model_s.spill[t]):.2f} Mm3")
+        print(f"Hour {t}: Production = {value(model_s.x[t]):.2f} MW, Discharge = {value(model_s.Q[t]):.2f} m3/s, Volume = {value(model_s.V[t]):.2f} Mm3")
     for t in model_s.T2:
         print(f"Hour {t}: Production = {value(model_s.x_s[t]):.2f} MW, Discharge = {value(model_s.Q_s[t]):.2f} m3/s, Volume = {value(model_s.V_s[t]):.2f} Mm3, Spillage: {value(model_s.spill[t]):.2f} Mm3")
     print("\n-----------------------------")

@@ -52,6 +52,7 @@ V_24_list = list(np.linspace(3, 4.5, 10))
 def create_sub(V_24, s):
     sub = ConcreteModel()
     sub.T2 = Set(initialize=T2)
+    # Spillage:
     sub.S_s = Var(sub.T2, domain=NonNegativeReals)
 
     sub.p = Param(sub.T2, initialize={t: p[t] for t in T2})
@@ -118,8 +119,8 @@ def create_master():
     # Constraints
     def reservoir_day1_rule(m,t):
         if t == 1:
-            return m.V[t] == m.V0 + m.M_conv*(m.I[t] - m.Q[t]- m.S[t])
-        return m.V[t] == m.V[t-1] + m.M_conv*(m.I[t] - m.Q[t]- m.S[t])
+            return m.V[t] == m.V0 + m.M_conv*(m.I[t] - m.Q[t])- m.S[t]
+        return m.V[t] == m.V[t-1] + m.M_conv*(m.I[t] - m.Q[t])- m.S[t]
     master.res_day1 = Constraint(master.T1, rule=reservoir_day1_rule)
 
     def prod_day1_rule(m,t):

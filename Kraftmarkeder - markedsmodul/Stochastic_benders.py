@@ -86,6 +86,7 @@ def create_master():
 def create_sub(V_24, s):
     sub = ConcreteModel()
     sub.T2 = Set(initialize=T2)
+    # Spillage:
     sub.S_s = Var(sub.T2, domain=NonNegativeReals)
 
     sub.p = Param(sub.T2, initialize={t: p[t] for t in T2})
